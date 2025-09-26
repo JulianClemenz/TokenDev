@@ -10,7 +10,7 @@ type Excercise struct {
 	ID              primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	Name            string             `bson:"name" json:"name" binding:"required"`
 	Description     string             `bson:"description" json:"description" binding:"required"`
-	CreatorUserID   int                `bson:"creator_user_id" json:"creator_user_id" binding:"required"` //int or primitive.ObjectID?
+	CreatorUserID   primitive.ObjectID `bson:"creator_user_id,omitempty" json:"creator_user_id" binding:"required"` //int or primitive.ObjectID?
 	Category        CategoryLevel      `bson:"category" json:"category" binding:"required, oneof=strength cardio flexibility balance"`
 	MainMuscleGroup string             `bjson:"main_muscle_group" json:"main_mouscle_group" binding:"required"`
 	DifficultLevel  string             `bjson:"difficult_level" json:"difficult_level" binding:"required"` //string or enum?
