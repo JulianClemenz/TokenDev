@@ -15,7 +15,7 @@ type Routine struct {
 }
 
 type ExcerciseInRoutine struct {
-	ExcerciseID primitive.ObjectID `bson:"excercise_id" json:"excercise_id" binding:"required"`
+	ExcerciseID primitive.ObjectID `bson:"excercise_id,omitempty" json:"excercise_id" binding:"required"`
 	Repetitions int                `bson:"repetitions"  json:"repetitions"  binding:"required,min=1"`
 	Series      int                `bson:"series"       json:"series"       binding:"required,min=1"`
 	Weight      float64            `bson:"weight"       json:"weight"       binding:"gte=0"`
