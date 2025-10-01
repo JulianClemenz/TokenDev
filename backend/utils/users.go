@@ -1,9 +1,6 @@
 package utils
 
-import (
-	"github.com/gin-gonic/gin"
-	"github.com/maxilovera/go-crud-example/clients/responses"
-)
+import "github.com/gin-gonic/gin"
 
 func SetUserInContext(c *gin.Context, user *responses.UserInfo) {
 	c.Set("UserInfo", user)
