@@ -2,10 +2,15 @@ package repositories
 
 import (
 	"AppFitness/models"
+	"AppFitness/utils"
 	"context"
+	"fmt"
+
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func ExcerciseRepositoryInterface interface {
+type ExcerciseRepositoryInterface interface {
 	PostExcercise(excercise models.Excercise) (*mongo.InsertOneResult, error)
 	GetExcercises() ([]models.Excercise, error)
 	GetExcerciseByID(id string) (models.Excercise, error)
@@ -23,13 +28,16 @@ func NewExcerciseRepository(db DB) *ExcerciseRepository {
 	}
 }
 
-func (repositori ExcerciseRepository) PostExcercise(excercise models.Excercise)(*mongo.InsertOneResult, error){
+func (repositori ExcerciseRepository) PostExcercise(excercise models.Excercise) (*mongo.InsertOneResult, error) {
 	collection := repositori.db.GetClient().Database("AppFitness").Collection("excercises")
 	resultado, err := collection.InsertOne(context.TODO(), excercise)
+	if err != nil {
+		return resultado, fmt.Errorf("error al insertar el ejercicio en ExcerciseRepository.PostExcercise(): %v", err)
+	}
 	return resultado, err
 }
 
-func (repository ExcerciseRepository) GetExcercises()([]models.Excercise, error){
+func (repository ExcerciseRepository) GetExcercises() ([]models.Excercise, error) {
 	collection := repository.db.GetClient().Database("AppFitness").Collection("excercises")
 	filtro := bson.M{} //filtro vacio para traer todos los documentos
 
@@ -42,7 +50,7 @@ func (repository ExcerciseRepository) GetExcercises()([]models.Excercise, error)
 		var excercise models.Excercise
 		err := cursor.Decode(&excercise)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("error al decodificar el ejercicio en ExcerciseRepository.GetExcercises(): %v", err)
 		}
 		excercises = append(excercises, excercise)
 	}
@@ -50,10 +58,42 @@ func (repository ExcerciseRepository) GetExcercises()([]models.Excercise, error)
 	return excercises, err
 }
 
-func (repository ExcerciseRepository) GetExcerciseByID(id string)(models.Excercise, error){
+func (repository ExcerciseRepository) GetExcerciseByID(id string) (models.Excercise, error) {
 	collection := repository.db.GetClient().Database("AppFitness").Collection("excercises")
 	objectID := utils.GetObjectIDFromStringID(id)
 	filtro := bson.M{"_id": objectID}
 
-	cursor, err := collection.FindOne(context.TODO(), filtro)
+	result := collection.FindOne(context.TODO(), filtro)
+	var excercise models.Excercise
+
+	err := result.Decode(&excercise)
+	if err != nil {
+		return models.Excercise{}, fmt.Errorf("error al obtener el ejercicio en ExcerciseRepository.GetExcerciseByID(): %v", err)
+	}
+	return excercise, nil
+}
+
+func (repository ExcerciseRepository) PutExcercise(excercise models.Excercise) (*mongo.UpdateResult, error) {
+	collection := repository.db.GetClient().Database("AppFitness").Collection("excercises")
+	filtro := bson.M{"_id": excercise.ID}
+
+	entity := bson.M{"$set": excercise}
+
+	result, err := collection.UpdateOne(context.TODO(), filtro, entity)
+	if err != nil {
+		return result, fmt.Errorf("error al actualizar el ejercicio en ExcerciseRepository.PutExcercise(): %v", err)
+	}
+	return result, err
+}
+
+func (repository ExcerciseRepository) DeleteExcercise(id string) (*mongo.DeleteResult, error) {
+	collection := repository.db.GetClient().Database("AppFitness").Collection("excercises")
+	objectID := utils.GetObjectIDFromStringID(id)
+	filtro := bson.M{"_id": objectID}
+
+	result, err := collection.DeleteOne(context.TODO(), filtro)
+	if err != nil {
+		return result, fmt.Errorf("error al eliminar el ejercicio en ExcerciseRepository.DeleteExcercise(): %v", err)
+	}
+	return result, err
 }

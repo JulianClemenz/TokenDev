@@ -2,16 +2,19 @@ package models
 
 import (
 	"time"
+
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type AdminLevel string
+
 const (
 	Admin  AdminLevel = "admin"
 	Client AdminLevel = "client"
 )
 
 type ExperienceLevel string
+
 const (
 	Beginner     ExperienceLevel = "beginner"
 	Intermediate ExperienceLevel = "intermediate"
@@ -19,6 +22,7 @@ const (
 )
 
 type ObjetiveLevel string
+
 const (
 	LoseWeight ObjetiveLevel = "lose_weight"
 	GainWeight ObjetiveLevel = "gain_weight"
@@ -33,14 +37,13 @@ type User struct {
 	Email       string             `bson:"email" json:"email" binding:"required,email"`
 	Password    string             `bson:"password" json:"-"`
 	BirthDate   time.Time          `bson:"birth_date" json:"birth_date"`
-	Role        AdminLevel         `bson:"role" json:"role" binding:"required, oneof= admin client`
+	Role        AdminLevel         `bson:"role" json:"role" binding:"required, oneof=admin client"`
 	Weight      float32            `bson:"weight" json:"weight"`
 	Height      float32            `bson:"height" json:"height"`
 	Experience  ExperienceLevel    `bson:"experience" json:"experience" binding:"required, oneof=beginner intermediate advanced"`
 	Objetive    ObjetiveLevel      `bson:"objetive" json:"objetive" binding:"required, oneof=lose_weight gain_weight maintaim"`
 	EditionDate time.Time          `bson:"edition_date" json:"edition_date"`
 }
-
 
 // PARA FRONTEND
 /*type LoginRequest struct {

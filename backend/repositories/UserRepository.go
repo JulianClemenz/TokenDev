@@ -4,6 +4,7 @@ import (
 	"AppFitness/models"
 	"AppFitness/utils"
 	"context"
+	"fmt"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -30,14 +31,17 @@ func NewUserRepository(db DB) *UserRepository {
 func (repository UserRepository) PostUser(user models.User) (*mongo.InsertOneResult, error) {
 	collection := repository.db.GetClient().Database("AppFitness").Collection("users")
 	result, err := collection.InsertOne(context.TODO(), user)
+	if err != nil {
+		return result, fmt.Errorf("error al insertar el usuario en UserRepository.PostUser(): %v", err)
+	}
 	return result, err
 }
 
 func (repository UserRepository) GetUsers() ([]models.User, error) { //REVISAR Y AJUSTAR LA DEVOLUCION DE ERRORES
 	collection := repository.db.GetClient().Database("AppFitness").Collection("users")
-	filtro := bson.M{} //filtro vacio para traer todos los documentos
+	filter := bson.M{} //filtro vacio para traer todos los documentos
 
-	cursor, err := collection.Find(context.TODO(), filtro)
+	cursor, err := collection.Find(context.TODO(), filter)
 	defer cursor.Close(context.TODO())
 
 	var users []models.User
@@ -45,7 +49,7 @@ func (repository UserRepository) GetUsers() ([]models.User, error) { //REVISAR Y
 		var user models.User
 		err := cursor.Decode(&user)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("error al decodificar el usuario en UserRepository.GetUsers(): %v", err)
 		}
 		users = append(users, user)
 	}
@@ -57,49 +61,40 @@ func (repository UserRepository) GetUSersByID(id string) (models.User, error) {
 	collection := repository.db.GetClient().Database("AppFitness").Collection("users")
 	objectID := utils.GetObjectIDFromStringID(id)
 
-	filtro := bson.M{"_id": objectID}
+	filter := bson.M{"_id": objectID}
 
-	result := collection.FindOne(context.TODO(), filtro)
+	result := collection.FindOne(context.TODO(), filter)
 
 	var user models.User
 	err := result.Decode(&user)
 	if err != nil {
-		return models.User{}, err
+		return models.User{}, fmt.Errorf("error al actualizar el usuario en UserRepository.PutUser(): %v", err)
 	}
 
 	return user, nil
-
-	/*cursor, err := collection.Find(context.TODO(), filtro)
-	defer cursor.Close(context.Background())
-
-	//itera a travez de los resultados
-	var user models.User
-	for cursor.Next(context.Background()) {
-		err := cursor.Decode(&user)
-		if err != nil {
-			return models.User{}, fmt.Errorf("usuario con id %s no encontrado", id)
-		}
-	}
-
-	return user, err*/
 }
 
 func (repository UserRepository) PutUser(user models.User) (*mongo.UpdateResult, error) {
 	collection := repository.db.GetClient().Database("AppFitness").Collection("users")
-	filtro := bson.M{"_id": user.ID}
+	filter := bson.M{"_id": user.ID}
 
-	entidad := bson.M{"$set": user}
-	resultado, err := collection.UpdateOne(context.TODO(), filtro, entidad)
-
-	return resultado, err
+	entity := bson.M{"$set": user}
+	result, err := collection.UpdateOne(context.TODO(), filter, entity)
+	if err != nil {
+		return result, fmt.Errorf("error al obtener el usuario UserRepository.PutUser(): %v", err)
+	}
+	return result, err
 }
 
 func (repository UserRepository) DeleteUser(id string) (*mongo.DeleteResult, error) {
 	collection := repository.db.GetClient().Database("AppFitness").Collection("users")
 	objectID := utils.GetObjectIDFromStringID(id)
-	filtro := bson.M{"_id": objectID}
+	filter := bson.M{"_id": objectID}
 
-	resultado, err := collection.DeleteOne(context.TODO(), filtro)
+	result, err := collection.DeleteOne(context.TODO(), filter)
+	if err != nil {
+		return result, fmt.Errorf("error al eliminar el usuario en UserRepository.DeleteUser(): %v", err)
+	}
 
-	return resultado, err
+	return result, err
 }
