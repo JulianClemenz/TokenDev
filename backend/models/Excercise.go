@@ -2,6 +2,7 @@ package models
 
 import (
 	"time"
+
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -16,6 +17,8 @@ type Excercise struct {
 	Example         string             `bson:"example" json:"example" binding:"required"`                  //url of video
 	Instructions    string             `bson:"instructions" json:"instructions" binding:"required"`
 	EditionDate     time.Time          `bson:"edition_date" json:"edition_date"`
+	EliminationDate time.Time          `bson:"elimination_date" json:"elimination_date"`
+	CreationDate    time.Time          `bson:"creation_date" json:"creation_date"`
 }
 
 type CategoryLevel string

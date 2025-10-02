@@ -1,13 +1,15 @@
 package utils
 
 import (
+	"errors"
 	"time"
 
+	"github.com/golang-jwt/jwt"
 	jwt "github.com/golang-jwt/jwt/v5"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-var secretSignature = []byte("firma_secretisima_del_token")
+var jwtSecret = []byte("firma_secretisima_del_token")
 
 type Claims struct {
 	UserID string `json:"user_id"`
@@ -24,6 +26,26 @@ func GenerateToken(userID primitive.ObjectID, email string) (string, error) {
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
 	}
-	token := jwt.NewWithClaims(jwt.SingingMethodHS256, claims)
-	return token.SignedString(secretSignature)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString(jwtSecret)
+}
+
+func ValidateToken(tokenString string) (*Claims, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
+		return jwtSecret, nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if claims, ok := token.Claims.(*Claims); ok && token.Valid {
+		return claims, nil
+	}
+
+	if claims, ok := token.Claims.(*Claims); ok && token.Valid {
+		return claims, nil
+	}
+
+	return nil, errors.New("invalid token")
 }
