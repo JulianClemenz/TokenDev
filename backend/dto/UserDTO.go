@@ -1,7 +1,9 @@
 package dto
 
 import (
+	"AppFitness/dto"
 	"AppFitness/models"
+	"AppFitness/utils"
 	"time"
 )
 
@@ -12,30 +14,14 @@ type UserRegisterDTO struct {
 	Email      string
 	Password   string
 	BirthDate  time.Time
-	Role       string //
+	Role       string
 	Weight     float32
 	Height     float32
-	Experience string //podria ser string
-	Objetive   string //podria ser string
+	Experience string
+	Objetive   string
 }
 
-func NewUserRegisterDTO(user models.User) *UserRegisterDTO {
-	return &UserRegisterDTO{
-		Name:       user.Name,
-		LastName:   user.LastName,
-		UserName:   user.UserName,
-		Email:      user.Email,
-		Password:   user.Password,
-		BirthDate:  user.BirthDate,
-		Role:       string(user.Role),
-		Weight:     user.Weight,
-		Height:     user.Height,
-		Experience: string(user.Experience),
-		Objetive:   string(user.Objetive),
-	}
-}
-
-func (user UserRegisterDTO) GetModel() models.User {
+func (user UserRegisterDTO) GetModelUserRegister() models.User {
 	return models.User{
 		Name:       user.Name,
 		LastName:   user.LastName,
@@ -43,6 +29,58 @@ func (user UserRegisterDTO) GetModel() models.User {
 		Email:      user.Email,
 		Password:   user.Password,
 		BirthDate:  user.BirthDate,
+		Role:       models.AdminLevel(user.Role),
+		Weight:     user.Weight,
+		Height:     user.Height,
+		Experience: models.ExperienceLevel(user.Experience),
+		Objetive:   models.ObjetiveLevel(user.Objetive),
+	}
+}
+
+type UserResponseDTO struct {
+	ID         string
+	Name       string
+	LastName   string
+	UserName   string
+	Email      string
+	BirthDate  time.Time
+	Weight     float32
+	Height     float32
+	Experience string
+	Objetive   string
+}
+
+func NewUserResponseDTO(user models.User) *UserResponseDTO {
+	return &UserResponseDTO{
+		ID:         utils.GetStringIDFromObjectID(user.ID),
+		Name:       user.Name,
+		LastName:   user.LastName,
+		UserName:   user.UserName,
+		Email:      user.Email,
+		BirthDate:  user.BirthDate,
+		Weight:     user.Weight,
+		Height:     user.Height,
+		Experience: string(user.Experience),
+		Objetive:   string(user.Objetive),
+	}
+}
+
+type UserModifyDTO struct {
+	UserName   string
+	Email      string
+	Password   string
+	Role       string
+	Weight     float32
+	Height     float32
+	Experience string
+	Objetive   string
+}
+
+func GetModelUserModify(user *dto.UserModifyDTO) *models.User {
+	return &models.User{
+		UserName:   user.UserName,
+		Email:      user.Email,
+		Password:   user.Password,
 		Role:       models.AdminLevel(user.Role),
 		Weight:     user.Weight,
 		Height:     user.Height,
