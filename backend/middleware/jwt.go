@@ -1,4 +1,4 @@
-package utils
+package middleware
 
 import (
 	"errors"
@@ -31,16 +31,15 @@ func GenerateToken(userID primitive.ObjectID, email string) (string, error) {
 }
 
 func ValidateToken(tokenString string) (*Claims, error) {
-	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) { //por cada intento de acceso a una funcion privada de la app se llama a este metodo
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok { //con esta funcion nos aseguramos que el contenido del token este seguro, ya que se verifica que el mismo este firmado con algun metodo de HMAC y no haya sido alterado el header o el payload por algun usuario
+			return nil, errors.New("")
+		}
 		return jwtSecret, nil
 	})
 
 	if err != nil {
 		return nil, err
-	}
-
-	if claims, ok := token.Claims.(*Claims); ok && token.Valid {
-		return claims, nil
 	}
 
 	if claims, ok := token.Claims.(*Claims); ok && token.Valid {
