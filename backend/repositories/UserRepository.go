@@ -12,9 +12,9 @@ import (
 
 type UserRepositoryInterface interface { //contrato que define metodos para manejar usuarios
 	GetUsers() ([]models.User, error)
-	GetUSersByID(id string) (models.User, error)
-	PostUser(user models.User) (*models.User, error)
-	PutUser(id int, user models.User) (*models.User, error)
+	GetUsersByID(id string) (models.User, error)
+	PostUser(user models.User) (*mongo.InsertOneResult, error)
+	PutUser(user models.User) (*models.User, error)
 	DeleteUser(id int) error
 }
 
@@ -57,7 +57,7 @@ func (repository UserRepository) GetUsers() ([]models.User, error) { //REVISAR Y
 	return users, err
 }
 
-func (repository UserRepository) GetUSersByID(id string) (models.User, error) {
+func (repository UserRepository) GetUsersByID(id string) (models.User, error) {
 	collection := repository.db.GetClient().Database("AppFitness").Collection("users")
 	objectID := utils.GetObjectIDFromStringID(id)
 
@@ -74,6 +74,20 @@ func (repository UserRepository) GetUSersByID(id string) (models.User, error) {
 	return user, nil
 }
 
+func (repository UserRepository) GetUserByEmail(email string) (models.User, error) { //para recuperar usuario por email en el login y recuperar ids en service
+	collection := repository.db.GetClient().Database("AppFitness").Collection("users")
+	filter := bson.M{"email": email}
+
+	result := collection.FindOne(context.TODO(), filter)
+
+	var user models.User
+	err := result.Decode(&user)
+	if err != nil {
+		return models.User{}, fmt.Errorf("error al obtener el usuario en UserRepository.GetUserByEmail(): %v", err)
+	}
+	return user, nil
+}
+
 func (repository UserRepository) PutUser(user models.User) (*mongo.UpdateResult, error) {
 	collection := repository.db.GetClient().Database("AppFitness").Collection("users")
 	filter := bson.M{"_id": user.ID}
@@ -81,9 +95,9 @@ func (repository UserRepository) PutUser(user models.User) (*mongo.UpdateResult,
 	entity := bson.M{"$set": user}
 	result, err := collection.UpdateOne(context.TODO(), filter, entity)
 	if err != nil {
-		return result, fmt.Errorf("error al obtener el usuario UserRepository.PutUser(): %v", err)
+		return nil, err
 	}
-	return result, err
+	return result, nil
 }
 
 func (repository UserRepository) DeleteUser(id string) (*mongo.DeleteResult, error) {
