@@ -10,9 +10,9 @@ import (
 type UserRegisterDTO struct {
 	Name       string
 	LastName   string
-	UserName   string
-	Email      string
-	Password   string
+	UserName   string `json:"user_name" binding:"required,min=5"`
+	Email      string `json:"email" binding:"required,email"`
+	Password   string `json:"password" binding:"required,min=7"`
 	BirthDate  time.Time
 	Role       string
 	Weight     float32

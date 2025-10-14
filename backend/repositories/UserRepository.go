@@ -16,6 +16,8 @@ type UserRepositoryInterface interface { //contrato que define metodos para mane
 	PostUser(user models.User) (*mongo.InsertOneResult, error)
 	PutUser(user models.User) (*models.User, error)
 	DeleteUser(id int) error
+	ExistByEmail(email string) (bool, error)
+	ExistByUserName(userName string) (bool, error)
 }
 
 type UserRepository struct { //campo para la conexion a la base de datos
@@ -111,4 +113,30 @@ func (repository UserRepository) DeleteUser(id string) (*mongo.DeleteResult, err
 	}
 
 	return result, err
+}
+
+func (r UserRepository) ExistByEmail(email string) (bool, error) { //verificamos si existe algun usuario con el mismo email y lo llamamos de UserService
+	collection := r.db.GetClient().Database("AppFitness").Collection("users")
+	filter := bson.M{"email": email}
+
+	count, err := collection.CountDocuments(context.TODO(), filter)
+
+	if err != nil {
+		return false, fmt.Errorf("error al verificar email: %w", err)
+	}
+
+	return count > 0, err
+}
+
+func (r UserRepository) ExistByUserName(userName string) (bool, error) { //verificamos si existe algun usuario con el mismo nombre de ussuario y lo llamamos de UserService
+	collection := r.db.GetClient().Database("AppFitness").Collection("users")
+	filter := bson.M{"userName": userName}
+
+	count, err := collection.CountDocuments(context.TODO(), filter)
+
+	if err != nil {
+		return false, fmt.Errorf("error al verificar nombre de usuario: %w", err)
+	}
+
+	return count > 0, err
 }
