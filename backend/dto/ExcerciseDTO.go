@@ -7,9 +7,9 @@ import (
 )
 
 type ExcerciseRegisterDTO struct {
+	ID              string
 	Name            string
 	Description     string
-	CreatorUserID   string
 	Category        string
 	MainMuscleGroup string
 	DifficultLevel  string
@@ -19,9 +19,9 @@ type ExcerciseRegisterDTO struct {
 
 func GetModelExcerciseRegister(excercise *ExcerciseRegisterDTO) *models.Excercise {
 	return &models.Excercise{
+		ID:              utils.GetObjectIDFromStringID(excercise.ID),
 		Name:            excercise.Name,
 		Description:     excercise.Description,
-		CreatorUserID:   utils.GetObjectIDFromStringID(excercise.CreatorUserID),
 		Category:        models.CategoryLevel(excercise.Category),
 		MainMuscleGroup: excercise.MainMuscleGroup,
 		DifficultLevel:  excercise.DifficultLevel,
