@@ -16,6 +16,7 @@ type ExcerciseRepositoryInterface interface {
 	GetExcerciseByID(id string) (models.Excercise, error)
 	PutExcercise(excercise models.Excercise) (*mongo.UpdateResult, error)
 	DeleteExcercise(id string) (*mongo.DeleteResult, error)
+	ExistByName(name string) (bool, error)
 }
 
 type ExcerciseRepository struct { //campo para la conexion a la base de datos
@@ -96,4 +97,16 @@ func (repository ExcerciseRepository) DeleteExcercise(id string) (*mongo.DeleteR
 		return result, fmt.Errorf("error al eliminar el ejercicio en ExcerciseRepository.DeleteExcercise(): %v", err)
 	}
 	return result, err
+}
+
+func (r ExcerciseRepository) ExistByName(name string) (bool, error) {
+	collection := r.db.GetClient().Database("AppFitness").Collection("excercises")
+	filter := bson.M{"name": name}
+
+	count, err := collection.CountDocuments(context.TODO(), filter)
+	if err != nil {
+		return false, fmt.Errorf("error al contar documentos en ExcerciseRepository.ExistByName(): %v", err)
+	}
+
+	return count > 0, err
 }

@@ -26,51 +26,57 @@ func NewUserService(UserRepository repositories.UserRepositoryInterface) *UserSe
 	}
 }
 
-func (service *UserService) PostUser(dto *dto.UserRegisterDTO) (bool, error) {
+func (service *UserService) PostUser(userDto *dto.UserRegisterDTO) (*dto.UserResponseDTO, error) {
 
-	if dto.Weight < 0 { //comprobamos que el peso ingresado no sea negativo
-		return false, fmt.Errorf("tu peso no puede ser menor a 0")
+	//VALIDACIONES
+	if userDto.Weight < 0 { //comprobamos que el peso ingresado no sea negativo
+		return nil, fmt.Errorf("tu peso no puede ser menor a 0")
 	}
 
-	if dto.BirthDate.After(time.Now()) { //comprobamos que la feha de nacimiento no sea mayor a hoy
-		return false, fmt.Errorf("error en fecha de nacimiento")
+	if userDto.BirthDate.After(time.Now()) { //comprobamos que la feha de nacimiento no sea mayor a hoy
+		return nil, fmt.Errorf("error en fecha de nacimiento")
 	}
 
-	dto.Email = strings.ToLower(strings.TrimSpace(dto.Email))
-	dto.UserName = strings.TrimSpace(dto.UserName)
+	userDto.Email = strings.ToLower(strings.TrimSpace(userDto.Email))
+	userDto.UserName = strings.TrimSpace(userDto.UserName)
 
-	verificacionEmail, err := service.UserRepository.ExistByEmail(dto.Email)
+	verificacionEmail, err := service.UserRepository.ExistByEmail(userDto.Email) //verifica si existe el email en la base de datos
 	if err != nil {
-		return false, fmt.Errorf("no se pudo verificar email: %w", err)
+		return nil, fmt.Errorf("no se pudo verificar email: %w", err)
 	}
 
 	if verificacionEmail {
-		return false, fmt.Errorf("dicho email ya existe")
+		return nil, fmt.Errorf("dicho email ya existe")
 	}
 
-	verificacionUserName, err := service.UserRepository.ExistByUserName(dto.UserName)
+	verificacionUserName, err := service.UserRepository.ExistByUserName(userDto.UserName) //verifica si existe el username en la base de datos
 
 	if err != nil {
-		return false, fmt.Errorf("no se pudo verificar nombre de usuario: %w", err)
+		return nil, fmt.Errorf("no se pudo verificar nombre de usuario: %w", err)
 	}
 
 	if verificacionUserName {
-		return false, fmt.Errorf("dicho nombre de usuario ya existe")
+		return nil, fmt.Errorf("dicho nombre de usuario ya existe")
 	}
 
-	userDB := dto.GetModelUserRegister() //convertimos el dto para registrar en model
+	//LOGICA
+	userDB := userDto.GetModelUserRegister() //convertimos el dto para registrar en model
 
 	hashed, err := utils.HashPassword(userDB.Password)
 	if err != nil { //comprobamos que no suceda ningun error en el hasheo de la contraseña
-		return false, fmt.Errorf("error al hashear contraseña: %w", err)
+		return nil, fmt.Errorf("error al hashear contraseña: %w", err)
 	}
 
 	userDB.Password = hashed //hasheamos la contraseña
 
-	if _, err := service.UserRepository.PostUser(userDB); err != nil {
-		return false, fmt.Errorf("error al insertar usuario: %w", err)
+	result, err := service.UserRepository.PostUser(userDB)
+	if err != nil {
+		return nil, fmt.Errorf("error al insertar usuario: %w", err)
 	}
-	return true, nil
+
+	userDB.ID = result.InsertedID.(primitive.ObjectID) //asignamos el ID generado por Mongo al userDB
+	userResponse := dto.NewUserResponseDTO(userDB)     //convertimos el model a dto para devolverlo
+	return userResponse, nil
 }
 
 func (services *UserService) GetUsers() []*dto.UserResponseDTO {
@@ -92,6 +98,46 @@ func (services *UserService) GetUSersByID(id string) *dto.UserResponseDTO {
 	if err == nil {
 		user = dto.NewUserResponseDTO(userDB)
 	}
-
 	return user
+}
+
+func (s *UserService) PutUser(newData *dto.UserModifyDTO) (*dto.UserModifyResponseDTO, error) {
+
+	if newData == nil {
+		return nil, fmt.Errorf("datos vacíos")
+	}
+	user, err := s.UserRepository.GetUsersByID(newData.ID)
+
+	if err != nil {
+		return nil, fmt.Errorf("error al buscar usuario")
+	}
+	if user.ID.IsZero() {
+		return nil, fmt.Errorf("no existe ningun usuario con ese ID") //verificamos que existe el usuario antes de modificar
+	}
+
+	if newData.Weight < 0 { //comprobamos que el peso ingresado no sea negativo
+		return nil, fmt.Errorf("tu peso no puede ser menor a 0")
+	}
+
+	newData.UserName = strings.TrimSpace(newData.UserName)
+
+	if newData.UserName != strings.TrimSpace(user.UserName) {//solo verificamos si el user name es diferente al q ya estaba
+		exist, err := s.UserRepository.ExistByUserNameExceptID(newData.ID, newData.UserName)
+		if err != nil {
+			return nil, fmt.Errorf("no se pudo verificar nombre de usuario: %w", err)
+		}
+
+		if exist {
+			return nil, fmt.Errorf("dicho nombre de usuario ya existe")
+		}
+	}
+
+	userDB := dto.GetModelUserModify(newData)
+	userResp := dto.NewUserModifyResponseDTO(userDB)
+
+	if _, err := s.UserRepository.PutUser(userDB); err != nil {
+		return nil, fmt.Errorf("error al modificar usuario: %w", err)
+	}
+
+	return userResp, nil
 }

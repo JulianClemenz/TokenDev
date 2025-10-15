@@ -44,3 +44,20 @@ type ExcerciseResponseDTO struct {
 	EliminationDate time.Time
 	CreationDate    time.Time
 }
+
+func NewExcerciseResponseDTO(excercise models.Excercise) *ExcerciseResponseDTO {
+	return &ExcerciseResponseDTO{
+		ID:              utils.GetStringIDFromObjectID(excercise.ID),
+		Name:            excercise.Name,
+		Description:     excercise.Description,
+		CreatorUserID:   utils.GetStringIDFromObjectID(excercise.CreatorUserID),
+		Category:        string(excercise.Category),
+		MainMuscleGroup: excercise.MainMuscleGroup,
+		DifficultLevel:  excercise.DifficultLevel,
+		Example:         excercise.Example,
+		Instructions:    excercise.Instructions,
+		EditionDate:     excercise.EditionDate,
+		EliminationDate: excercise.EliminationDate,
+		CreationDate:    excercise.CreationDate,
+	}
+}

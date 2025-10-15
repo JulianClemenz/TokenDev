@@ -66,9 +66,9 @@ func NewUserResponseDTO(user models.User) *UserResponseDTO {
 }
 
 type UserModifyDTO struct {
+	ID         string
 	UserName   string
 	Email      string
-	Password   string
 	Role       string
 	Weight     float32
 	Height     float32
@@ -76,11 +76,45 @@ type UserModifyDTO struct {
 	Objetive   string
 }
 
-func GetModelUserModify(user *dto.UserModifyDTO) *models.User {
+func GetModelUserModify(user *dto.UserModifyDTO) models.User {
+	return models.User{
+		ID:         utils.GetObjectIDFromStringID(user.ID),
+		UserName:   user.UserName,
+		Email:      user.Email,
+		Role:       models.AdminLevel(user.Role),
+		Weight:     user.Weight,
+		Height:     user.Height,
+		Experience: models.ExperienceLevel(user.Experience),
+		Objetive:   models.ObjetiveLevel(user.Objetive),
+	}
+}
+
+type UserModifyResponseDTO struct {
+	UserName   string
+	Email      string
+	Role       string
+	Weight     float32
+	Height     float32
+	Experience string
+	Objetive   string
+}
+
+func NewUserModifyResponseDTO(user models.User) *UserModifyResponseDTO {
+	return &UserModifyResponseDTO{
+		UserName:   user.UserName,
+		Email:      user.Email,
+		Role:       string(user.Role),
+		Weight:     user.Weight,
+		Height:     user.Height,
+		Experience: string(user.Experience),
+		Objetive:   string(user.Objetive),
+	}
+}
+
+func GetModelUserModifyResponse(user UserModifyResponseDTO) *models.User {
 	return &models.User{
 		UserName:   user.UserName,
 		Email:      user.Email,
-		Password:   user.Password,
 		Role:       models.AdminLevel(user.Role),
 		Weight:     user.Weight,
 		Height:     user.Height,

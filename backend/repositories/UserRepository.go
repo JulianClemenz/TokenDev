@@ -18,6 +18,7 @@ type UserRepositoryInterface interface { //contrato que define metodos para mane
 	DeleteUser(id int) error
 	ExistByEmail(email string) (bool, error)
 	ExistByUserName(userName string) (bool, error)
+	ExistByUserNameExceptID(id string, userName string) (bool, error)
 }
 
 type UserRepository struct { //campo para la conexion a la base de datos
@@ -73,7 +74,7 @@ func (repository UserRepository) GetUsersByID(id string) (models.User, error) {
 		return models.User{}, fmt.Errorf("error al actualizar el usuario en UserRepository.PutUser(): %v", err)
 	}
 
-	return user, nil
+	return user, err
 }
 
 func (repository UserRepository) GetUserByEmail(email string) (models.User, error) { //para recuperar usuario por email en el login y recuperar ids en service
@@ -130,12 +131,28 @@ func (r UserRepository) ExistByEmail(email string) (bool, error) { //verificamos
 
 func (r UserRepository) ExistByUserName(userName string) (bool, error) { //verificamos si existe algun usuario con el mismo nombre de ussuario y lo llamamos de UserService
 	collection := r.db.GetClient().Database("AppFitness").Collection("users")
-	filter := bson.M{"userName": userName}
+	filter := bson.M{"user_name": userName}
 
 	count, err := collection.CountDocuments(context.TODO(), filter)
 
 	if err != nil {
 		return false, fmt.Errorf("error al verificar nombre de usuario: %w", err)
+	}
+
+	return count > 0, err
+}
+
+func (r UserRepository) ExistByUserNameExceptID(id string, userName string) (bool, error) {
+	collection := r.db.GetClient().Database("AppFitness").Collection("users")
+	filter := bson.M{
+		"user_name": userName,
+		"_id":       bson.M{"$ne": id},
+	} //con este filtro buscamos si existe algun email pero q no se el de nuestro email
+
+	count, err := collection.CountDocuments(context.TODO(), filter)
+
+	if err != nil {
+		return false, fmt.Errorf("error al verificar el nombre de usuario excepto el de nuestro id: %w", err)
 	}
 
 	return count > 0, err

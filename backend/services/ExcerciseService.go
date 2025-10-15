@@ -4,11 +4,12 @@ import (
 	"AppFitness/dto"
 	"AppFitness/repositories"
 	"fmt"
-	"strings"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type ExcerciseInterface interface {
-	PostExcercise(excercise *dto.ExcerciseRegisterDTO) (*dto.ExcerciseResponseDTO, error)
+	PostExcercise(excercise *dto.ExcerciseRegisterDTO, actor Actor) (*dto.ExcerciseResponseDTO, error)
 }
 
 type ExcerciseService struct {
@@ -21,44 +22,55 @@ func NewExcerciseService(ExcerciseRepository repositories.ExcerciseRepositoryInt
 	}
 }
 
-// REGISTRAR EJERCICIO
-func (service *ExcerciseService) PostExcercise(excerciseDto *dto.ExcerciseRegisterDTO) (*dto.ExcerciseResponseDTO, error) {
+func (service *ExcerciseService) PostExcercise(excerciseDto *dto.ExcerciseRegisterDTO, actor Actor) (*dto.ExcerciseResponseDTO, error) {
+
+	//VALIDACIONES
+	// Validacion de permisos de usuario
+	if actor.Role != "admin" {
+		return nil, fmt.Errorf("no tienes permisos para crear un ejercicio, tu rol es: %s", actor.Role)
+	}
+
+	// Validaciones de campos obligatorios
 	if excerciseDto.Name == "" {
 		return nil, fmt.Errorf("el nombre del ejercicio no puede estar vacío")
 	}
 	if excerciseDto.DifficultLevel == "" {
 		return nil, fmt.Errorf("el nivel de dificultad no puede estar vacío")
 	}
-	if excerciseDto.CreatorUserID == "" {
-		return nil, fmt.Errorf("el ID del usuario creador no puede estar vacío")
+	if excerciseDto.MainMuscleGroup == "" {
+		return nil, fmt.Errorf("el grupo muscular no puede estar vacío")
+	}
+	if excerciseDto.Description == "" {
+		return nil, fmt.Errorf("la descripción del ejercicio no puede estar vacía")
+	}
+	if excerciseDto.Category == "" {
+		return nil, fmt.Errorf("la categoría del ejercicio no puede estar vacía")
 	}
 
-	excerciseModel := dto.GetModelExcerciseRegister(excerciseDto) //convertimos el dto para registrar en model
-
-	excercisesList, err := service.ExcerciseRepository.GetExcercises() //traemos todo los ejercicios para hacer comprobaciones de que no esten repetidos algunos campos
+	// Validacion de existencia por nombre
+	nameExist, err := service.ExcerciseRepository.ExistByName(excerciseDto.Name)
 	if err != nil {
-		return nil, fmt.Errorf("error al obtener ejercicios: %w", err)
+		return nil, fmt.Errorf("no se pudo verificar el nombre del ejercicio en la base de datos: %w", err)
+	}
+	if nameExist == true {
+		return nil, fmt.Errorf("ya existe un ejercicio con ese nombre")
 	}
 
-	for _, excercise := range excercisesList {
-		if strings.EqualFold(excercise.Name, excerciseDto.Name) { //EqualFold no distingue mayúsculas/minúsculas, compara dos cadenas
-			return nil, fmt.Errorf("ya existe un ejercicio con ese nombre")
-		}
+	//LOGICA
+	excerciseDto.CreatorUserID = actor.ID //asignamos el ID del usuario que crea el ejercicio
+
+	excerciseModel := dto.GetModelExcerciseRegister(excerciseDto)             //convertimos el dto para registrar en model
+	result, err := service.ExcerciseRepository.PostExcercise(*excerciseModel) //ejecutamos post en repository
+	if err != nil {
+		return nil, err
 	}
 
-	/*
-		for _, user := range usersExist {
-			if strings.EqualFold(strings.TrimSpace(user.UserName), strings.TrimSpace(dto.UserName)) { //EqualFold no distingue mayúsculas/minúsculas, compara dos cadenas
-				return false, fmt.Errorf("ya existe ese user name")
-			}
-			if strings.EqualFold(strings.TrimSpace(user.Email), strings.TrimSpace(dto.Email)) { //TrimSpace Quita espacios al principio y final de la cadena
-				return false, fmt.Errorf("email ya existente")
-			}
-		}
-	*/
+	excerciseModel.ID = result.InsertedID.(primitive.ObjectID)        //asignamos el ID generado por MongoDB al modelo
+	excerciseResponse := dto.NewExcerciseResponseDTO(*excerciseModel) //convertimos el modelo a dto para la respuesta
+	return excerciseResponse, nil
 }
 
 type Actor struct { //solo para desarrollar, asi llegaran los datos del token desde middleware para comprobar permisos en cada metodo
-	ID   string
+	ID   string //DUDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 	Role string
 }
