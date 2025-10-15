@@ -1,4 +1,4 @@
-package middleware
+package utils
 
 import (
 	"errors"
@@ -14,13 +14,15 @@ var jwtSecret = []byte("firma_secretisima_del_token")
 type Claims struct {
 	UserID string `json:"user_id"`
 	Email  string `json:"email"`
+	Role   string `json:"role"`
 	jwt.RegisteredClaims
 }
 
-func GenerateToken(userID primitive.ObjectID, email string) (string, error) {
+func GenerateToken(userID primitive.ObjectID, email string, role string) (string, error) {
 	claims := Claims{
 		UserID: userID.Hex(),
 		Email:  email,
+		Role:   role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),

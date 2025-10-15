@@ -95,8 +95,3 @@ func (services *UserService) GetUSersByID(id string) *dto.UserResponseDTO {
 
 	return user
 }
-
-func (services *UserService) PutUser(dto *dto.UserModifyDTO) bool {
-	services.UserRepository.PostUser(dto.GetModelUserModify())
-	return true
-}
