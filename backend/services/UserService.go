@@ -10,10 +10,11 @@ import (
 )
 
 type UserInterface interface {
-	PostUser(user *dto.UserRegisterDTO) (bool, error)
+	PostUser(user *dto.UserRegisterDTO) (*dto.UserResponseDTO, error)
 	GetUsers() []*dto.UserResponseDTO
 	GetUserByID(id string) *dto.UserResponseDTO
 	PutUser(user *dto.UserModifyDTO) bool
+	PasswordModify(newPassword string, id string)(bool, error)
 }
 
 type UserService struct {
@@ -141,3 +142,10 @@ func (s *UserService) PutUser(newData *dto.UserModifyDTO) (*dto.UserModifyRespon
 
 	return userResp, nil
 }
+
+func (s *UserService) PasswordModify(newPasword string, id string) (bool, error){
+   userDB := s.UserRepository.GetUsersByID(id)
+   
+}
+
+
