@@ -20,7 +20,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		tokenParts := strings.Split(authHeader, " ")
 		if len(tokenParts) != 2 || tokenParts[0] != "Bearer" {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Formato de token invalido"})
-			c.Abort
+			c.Abort()
 			return
 		}
 
@@ -28,7 +28,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		claims, err := utils.ValidateToken(tokenString)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "token invalido"})
-			c.Abort
+			c.Abort()
 			return
 		}
 

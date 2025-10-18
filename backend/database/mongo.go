@@ -1,32 +1,42 @@
 package database
 
-//ESTOS METODOS FUNCIONAN PERO NO ESCALAN
-//LO SACAMOS A DB.go
+import (
+	"context"
+	"log"
+	"time"
 
-// var Client *mongo.Client
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+)
 
-// func Connect() error {
-// 	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+var Client *mongo.Client
+var Database *mongo.Database
 
-// 	client, err := mongo.Connect(context.Background(), clientOptions)
+func Connect() error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
-// 	if err != nil {
-// 		return err
-// 	}
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
+	if err != nil {
+		return err
+	}
 
-// 	err = client.Ping(context.Background(), nil)
-// 	if err != nil {
-// 		return err
-// 	}
+	// Verificar la conexión
+	err = client.Ping(ctx, nil)
+	if err != nil {
+		return err
+	}
 
-// 	Client = client
-// 	fmt.Printf("Client Connect: %v\n", &Client)
+	Client = client
+	Database = client.Database("AppFitness")
 
-// 	return nil
-// }
+	log.Println("Conectado a MongoDB exitosamente")
+	return nil
+}
 
-// func Disconnect() error {
-// 	fmt.Printf("Client Disconnect: %v\n", &Client)
+func Disconnect() error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
-// 	return Client.Disconnect(context.Background())
-// }
+	return Client.Disconnect(ctx)
+}

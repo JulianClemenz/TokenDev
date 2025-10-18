@@ -1,12 +1,16 @@
 package repositories
 
 import (
+	"AppFitness/dto"
 	"AppFitness/models"
 	"AppFitness/utils"
 	"context"
+	"errors"
 	"fmt"
+	"strings"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -15,6 +19,7 @@ type UserRepositoryInterface interface { //contrato que define metodos para mane
 	GetUsersByID(id string) (models.User, error)
 	PostUser(user models.User) (*mongo.InsertOneResult, error)
 	PutUser(user models.User) (*models.User, error)
+	UpdateNewPassword(dto dto.PasswordChange, id string) (modified int64, err error)
 	DeleteUser(id int) error
 	ExistByEmail(email string) (bool, error)
 	ExistByUserName(userName string) (bool, error)
@@ -45,6 +50,9 @@ func (repository UserRepository) GetUsers() ([]models.User, error) { //REVISAR Y
 	filter := bson.M{} //filtro vacio para traer todos los documentos
 
 	cursor, err := collection.Find(context.TODO(), filter)
+	if err != nil {
+		return nil, fmt.Errorf("error al ejecutar la consulta Find(): %w", err)
+	}
 	defer cursor.Close(context.TODO())
 
 	var users []models.User
@@ -56,6 +64,9 @@ func (repository UserRepository) GetUsers() ([]models.User, error) { //REVISAR Y
 		}
 		users = append(users, user)
 	}
+	if err := cursor.Err(); err != nil {
+		return nil, fmt.Errorf("error al iterar el cursor: %w", err)
+	}
 
 	return users, err
 }
@@ -66,12 +77,14 @@ func (repository UserRepository) GetUsersByID(id string) (models.User, error) {
 
 	filter := bson.M{"_id": objectID}
 
-	result := collection.FindOne(context.TODO(), filter)
-
 	var user models.User
-	err := result.Decode(&user)
+	err := collection.FindOne(context.TODO(), filter).Decode(&user)
+
 	if err != nil {
-		return models.User{}, fmt.Errorf("error al actualizar el usuario en UserRepository.PutUser(): %v", err)
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return models.User{}, fmt.Errorf("no se encontró ningún usuario con el ID proporcionado")
+		}
+		return models.User{}, fmt.Errorf("error al obtener usuario por ID: %w", err)
 	}
 
 	return user, err
@@ -156,4 +169,24 @@ func (r UserRepository) ExistByUserNameExceptID(id string, userName string) (boo
 	}
 
 	return count > 0, err
+}
+
+func (r *UserRepository) UpdateNewPassword(dto dto.PasswordChange, id string) (modified int64, err error) {
+	collection := r.db.GetClient().Database("AppFitness").Collection("users")
+
+	ID, err := primitive.ObjectIDFromHex(strings.TrimSpace(id))
+	if err != nil {
+		return 0, fmt.Errorf("ID inválido")
+	}
+
+	res, err := collection.UpdateOne(
+		context.TODO(),
+		bson.M{"_id": ID, "password": dto.CurrentPassword},
+		bson.M{"$set": bson.M{"password": dto.NewPassword}},
+	)
+	if err != nil {
+		return 0, err
+	}
+	//devolvemos la cantidad  de documentos q fueron modificados
+	return res.ModifiedCount, nil
 }
