@@ -6,8 +6,11 @@ import (
 	"time"
 )
 
+// ExcerciseRegisterDTO
+// ExcerciseResponseDTO
+// ExcerciseModifyDTO
+
 type ExcerciseRegisterDTO struct {
-	ID              string
 	Name            string
 	Description     string
 	Category        string
@@ -19,7 +22,6 @@ type ExcerciseRegisterDTO struct {
 
 func GetModelExcerciseRegister(excercise *ExcerciseRegisterDTO) *models.Excercise {
 	return &models.Excercise{
-		ID:              utils.GetObjectIDFromStringID(excercise.ID),
 		Name:            excercise.Name,
 		Description:     excercise.Description,
 		Category:        models.CategoryLevel(excercise.Category),
@@ -59,5 +61,54 @@ func NewExcerciseResponseDTO(excercise models.Excercise) *ExcerciseResponseDTO {
 		EditionDate:     excercise.EditionDate,
 		EliminationDate: excercise.EliminationDate,
 		CreationDate:    excercise.CreationDate,
+	}
+}
+
+type ExcerciseModifyDTO struct {
+	ID              string
+	Name            string
+	Description     string
+	Category        string
+	MainMuscleGroup string
+	DifficultLevel  string
+	Example         string
+	Instructions    string
+}
+
+func GetModelExcerciseModify(excercise *ExcerciseModifyDTO) *models.Excercise {
+	return &models.Excercise{
+		Name:            excercise.Name,
+		Description:     excercise.Description,
+		Category:        models.CategoryLevel(excercise.Category),
+		MainMuscleGroup: excercise.MainMuscleGroup,
+		DifficultLevel:  excercise.DifficultLevel,
+		Example:         excercise.Example,
+		Instructions:    excercise.Instructions,
+	}
+}
+
+type ExcerciseModifyResponseDTO struct {
+	Name            string
+	Description     string
+	CreatorUserID   string
+	Category        string
+	MainMuscleGroup string
+	DifficultLevel  string
+	Example         string
+	Instructions    string
+	EditionDate     time.Time
+}
+
+func NewExcerciseModifyResponseDTO(excercise models.Excercise) *ExcerciseModifyResponseDTO {
+	return &ExcerciseModifyResponseDTO{
+		Name:            excercise.Name,
+		Description:     excercise.Description,
+		CreatorUserID:   utils.GetStringIDFromObjectID(excercise.CreatorUserID),
+		Category:        string(excercise.Category),
+		MainMuscleGroup: excercise.MainMuscleGroup,
+		DifficultLevel:  excercise.DifficultLevel,
+		Example:         excercise.Example,
+		Instructions:    excercise.Instructions,
+		EditionDate:     excercise.EditionDate,
 	}
 }
