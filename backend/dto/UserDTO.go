@@ -68,10 +68,10 @@ func NewUserResponseDTO(user models.User) *UserResponseDTO {
 type UserModifyDTO struct {
 	ID         string
 	UserName   string
-	Email      string
+	Email      string `json:"email" binding:"required,email"`
 	Role       string
-	Weight     float32
-	Height     float32
+	Weight     float32 `json:"weight" binding:"gte=0"`
+	Height     float32 `json:"height" binding:"gte=0"`
 	Experience string
 	Objetive   string
 }

@@ -16,7 +16,7 @@ type UserInterface interface {
 	PostUser(user *dto.UserRegisterDTO) (*dto.UserResponseDTO, error)
 	GetUsers() ([]*dto.UserResponseDTO, error)
 	GetUserByID(id string) (*dto.UserResponseDTO, error)
-	PutUser(user *dto.UserModifyDTO) bool
+	PutUser(user *dto.UserModifyDTO) (*dto.UserModifyResponseDTO, error)
 	PasswordModify(dto dto.PasswordChange, id string) (bool, error)
 }
 
@@ -121,10 +121,6 @@ func (s *UserService) PutUser(newData *dto.UserModifyDTO) (*dto.UserModifyRespon
 		return nil, fmt.Errorf("no existe ningun usuario con ese ID") //verificamos que existe el usuario antes de modificar
 	}
 
-	if newData.Weight < 0 { //comprobamos que el peso ingresado no sea negativo
-		return nil, fmt.Errorf("tu peso no puede ser menor a 0")
-	}
-
 	newData.UserName = strings.TrimSpace(newData.UserName)
 
 	if newData.UserName != strings.TrimSpace(user.UserName) { //solo verificamos si el user name es diferente al q ya estaba
@@ -190,7 +186,7 @@ func (s *UserService) PasswordModify(dto dto.PasswordChange, id string) (bool, e
 	}
 
 	if modified == 0 {
-		return fasle, fmt.Errorf("no se realizaron cambios")
+		return false, fmt.Errorf("no se realizaron cambios")
 	}
 
 	return true, nil
