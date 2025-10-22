@@ -12,9 +12,9 @@ type Excercise struct {
 	Description     string             `bson:"description" json:"description" binding:"required"`
 	CreatorUserID   primitive.ObjectID `bson:"creator_user_id,omitempty" json:"creator_user_id" binding:"required"` //int or primitive.ObjectID?
 	Category        CategoryLevel      `bson:"category" json:"category" binding:"required, oneof=strength cardio flexibility balance"`
-	MainMuscleGroup string             `bjson:"main_muscle_group" json:"main_mouscle_group" binding:"required"`
-	DifficultLevel  string             `bjson:"difficult_level" json:"difficult_level" binding:"required"` //string or enum?
-	Example         string             `bson:"example" json:"example" binding:"required"`                  //url of video
+	MainMuscleGroup string             `bson:"main_muscle_group" json:"main_mouscle_group" binding:"required"`
+	DifficultLevel  string             `bson:"difficult_level" json:"difficult_level" binding:"required"` //string or enum?
+	Example         string             `bson:"example" json:"example" binding:"required"`                 //url of video
 	Instructions    string             `bson:"instructions" json:"instructions" binding:"required"`
 	EditionDate     time.Time          `bson:"edition_date" json:"edition_date"`
 	EliminationDate time.Time          `bson:"elimination_date" json:"elimination_date"`

@@ -78,7 +78,15 @@ func (repository ExcerciseRepository) PutExcercise(excercise models.Excercise) (
 	collection := repository.db.GetClient().Database("AppFitness").Collection("excercises")
 	filtro := bson.M{"_id": excercise.ID}
 
-	entity := bson.M{"$set": excercise}
+	entity := bson.M{"$set": bson.M{
+		"name":              excercise.Name,
+		"description":       excercise.Description,
+		"category":          excercise.Category,
+		"main_muscle_group": excercise.MainMuscleGroup,
+		"example":           excercise.Example,
+		"instructions":      excercise.Instructions,
+		"edition_date":      excercise.EditionDate,
+	}}
 
 	result, err := collection.UpdateOne(context.TODO(), filtro, entity)
 	if err != nil {

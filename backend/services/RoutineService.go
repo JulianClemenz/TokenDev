@@ -7,7 +7,7 @@ import (
 )
 
 type RoutineInterface interface {
-	PostRoutine(routine *dto.RoutineRegisterDTO) (*dto.RoutineResponseDTO, error)
+	PostRoutine(routineDTO *dto.RoutineRegisterDTO) (*dto.RoutineResponseDTO, error)
 }
 
 type RoutineService struct {
@@ -20,7 +20,7 @@ func NewRoutineService(routineRepository repositories.RoutineRepositoryInterface
 	}
 }
 
-func (service RoutineService) PostRoutine(routineDTO *dto.RoutineRegisterDTO /*CreatorUserId se setea en handler*/) (*dto.RoutineResponseDTO, error) {
+func (service RoutineService) PostRoutine(routineDTO *dto.RoutineRegisterDTO) (*dto.RoutineResponseDTO, error) {
 	//VALIDACIONES
 	//validacion de campos obligatorios
 	if routineDTO.Name == "" {

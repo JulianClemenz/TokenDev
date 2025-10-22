@@ -108,7 +108,15 @@ func (repository UserRepository) PutUser(user models.User) (*mongo.UpdateResult,
 	collection := repository.db.GetClient().Database("AppFitness").Collection("users")
 	filter := bson.M{"_id": user.ID}
 
-	entity := bson.M{"$set": user}
+	entity := bson.M{"$set": bson.M{
+		"user_name":  user.Name,
+		"email":      user.Email,
+		"role":       user.Role,
+		"weight":     user.Weight,
+		"height":     user.Height,
+		"experience": user.Experience,
+		"objetive":   user.Objetive,
+	}}
 	result, err := collection.UpdateOne(context.TODO(), filter, entity)
 	if err != nil {
 		return nil, err

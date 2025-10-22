@@ -5,6 +5,7 @@ import (
 	"AppFitness/repositories"
 	"AppFitness/utils"
 	"fmt"
+	"strings"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -12,9 +13,9 @@ import (
 
 type ExcerciseInterface interface { //POST, PUT y DELETE son accesibles solo por admins (reciben actor)
 	//admins
-	PostExcercise(excercise *dto.ExcerciseRegisterDTO, actor Actor) (*dto.ExcerciseResponseDTO, error)
-	PutExcercise(excercise *dto.ExcerciseRegisterDTO, actor Actor) (*dto.ExcerciseResponseDTO, error)
-	DeleteExcercise(id string, actor Actor) (bool, error)
+	PostExcercise(excercise *dto.ExcerciseRegisterDTO, id string) (*dto.ExcerciseResponseDTO, error)
+	PutExcercise(excercise *dto.ExcerciseRegisterDTO) (*dto.ExcerciseResponseDTO, error)
+	DeleteExcercise(id string) (bool, error)
 	//todos los usuarios
 	GetExcercises() ([]*dto.ExcerciseResponseDTO, error)
 	GetExcerciseByID(id string) (*dto.ExcerciseResponseDTO, error)
@@ -30,16 +31,10 @@ func NewExcerciseService(ExcerciseRepository repositories.ExcerciseRepositoryInt
 	}
 }
 
-func (service *ExcerciseService) PostExcercise(excerciseDto *dto.ExcerciseRegisterDTO, actor Actor) (*dto.ExcerciseResponseDTO, error) {
-
-	//VALIDACIONES
-	// Validacion de permisos de usuario
-	if actor.Role != "admin" {
-		return nil, fmt.Errorf("no tienes permisos para crear un ejercicio, tu rol es: %s", actor.Role)
-	}
+func (service *ExcerciseService) PostExcercise(excerciseDto *dto.ExcerciseRegisterDTO, id string) (*dto.ExcerciseResponseDTO, error) {
 
 	// Validaciones de campos obligatorios
-	if excerciseDto.Name == "" {
+	if strings.TrimSpace(excerciseDto.Name) == "" {
 		return nil, fmt.Errorf("el nombre del ejercicio no puede estar vacío")
 	}
 	if excerciseDto.DifficultLevel == "" {
@@ -66,7 +61,7 @@ func (service *ExcerciseService) PostExcercise(excerciseDto *dto.ExcerciseRegist
 
 	//LOGICA
 	excerciseModel := dto.GetModelExcerciseRegister(excerciseDto)             //convertimos el dto a modelo para el repository
-	excerciseModel.CreatorUserID = utils.GetObjectIDFromStringID(actor.ID)    //asignamos el ObjectID del usuario que crea el ejercicio
+	excerciseModel.CreatorUserID = utils.GetObjectIDFromStringID(id)          //asignamos el ObjectID del usuario que crea el ejercicio
 	result, err := service.ExcerciseRepository.PostExcercise(*excerciseModel) //ejecutamos post en repository
 	if err != nil {
 		return nil, err
@@ -77,30 +72,24 @@ func (service *ExcerciseService) PostExcercise(excerciseDto *dto.ExcerciseRegist
 	return excerciseResponse, nil
 }
 
-func (service *ExcerciseService) PutExcercise(newData *dto.ExcerciseModifyDTO, id string, actor Actor) (*dto.ExcerciseModifyResponseDTO, error) {
-
-	//VALIDACIONES
-	// Validacion de permisos de usuario
-	if actor.Role != "admin" {
-		return nil, fmt.Errorf("no tienes permisos para modificar un ejercicio, tu rol es: %s", actor.Role)
-	}
-
+func (service *ExcerciseService) PutExcercise(newData *dto.ExcerciseModifyDTO) (*dto.ExcerciseModifyResponseDTO, error) {
 	// Validaciones de campos obligatorios
-	if newData.Name == "" {
+	if strings.TrimSpace(newData.Name) == "" {
 		return nil, fmt.Errorf("datos vacios")
 	}
-	if id == "" {
+	ObjetiveID := utils.GetObjectIDFromStringID(newData.ID)
+	if ObjetiveID.IsZero() {
 		return nil, fmt.Errorf("el id del ejercicio no puede estar vacío")
 	}
 
 	//LOGICA
-	_, err := service.ExcerciseRepository.GetExcerciseByID(id) //comprobamos que el ejercicio a modificar existe
+	_, err := service.ExcerciseRepository.GetExcerciseByID(newData.ID) //comprobamos que el ejercicio a modificar existe
 	if err != nil {
 		return nil, fmt.Errorf("error al obtener el ejercicio a modificar: %w", err)
 	}
 
 	excerciseModel := dto.GetModelExcerciseModify(newData) //convertimos el dto a modelo para el repository
-	excerciseModel.ID = utils.GetObjectIDFromStringID(id)  //asignamos el ObjectID del ejercicio a modificar
+	excerciseModel.ID = ObjetiveID                         //asignamos el ObjectID del ejercicio a modificar
 	excerciseModel.EditionDate = time.Now()                //actualizamos la fecha de edición
 
 	result, err := service.ExcerciseRepository.PutExcercise(*excerciseModel) //ejecutamos put en repository
@@ -111,7 +100,7 @@ func (service *ExcerciseService) PutExcercise(newData *dto.ExcerciseModifyDTO, i
 		return nil, fmt.Errorf("no se modificó ningún ejercicio")
 	}
 
-	excerciseModify, err := service.ExcerciseRepository.GetExcerciseByID(id) //obtenemos el ejercicio modificado para devolverlo
+	excerciseModify, err := service.ExcerciseRepository.GetExcerciseByID(newData.ID) //obtenemos el ejercicio modificado para devolverlo
 	if err != nil {
 		return nil, fmt.Errorf("error al obtener el ejercicio modificado: %w", err)
 	}
@@ -139,12 +128,4 @@ func (service *ExcerciseService) GetExcerciseByID(id string) (*dto.ExcerciseResp
 		return nil, fmt.Errorf("error al obtener ejercicio: %w", err)
 	}
 	return dto.NewExcerciseResponseDTO(userDB), nil
-}
-
-/*func (service *ExcerciseService) DeleteExcercise(id string, actor Actor) (bool, error) {}
-ELIMINACION LOGICA O VERDADERA?*/
-
-type Actor struct { //solo para desarrollar, asi llegaran los datos del token desde middleware para comprobar permisos en cada metodo
-	ID   string //DUDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-	Role string
 }

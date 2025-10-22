@@ -11,13 +11,13 @@ import (
 // ExcerciseModifyDTO
 
 type ExcerciseRegisterDTO struct {
-	Name            string
-	Description     string
-	Category        string
-	MainMuscleGroup string
-	DifficultLevel  string
-	Example         string
-	Instructions    string
+	Name            string `json:"name" bson:"name" binding:"required"`
+	Description     string `json:"description" bson:"description" binding:"required"`
+	Category        string `json:"category" bson:"category" binding:"required"`
+	MainMuscleGroup string `json:"main_muscle_group" bson:"main_muscle_group" binding:"required"`
+	DifficultLevel  string `json:"difficult_level" bson:"difficult_level" binding:"required"`
+	Example         string `json:"example" bson:"example" binding:"required"`
+	Instructions    string `json:"instructions" bson:"instructions" binding:"required"`
 }
 
 func GetModelExcerciseRegister(excercise *ExcerciseRegisterDTO) *models.Excercise {
@@ -66,13 +66,13 @@ func NewExcerciseResponseDTO(excercise models.Excercise) *ExcerciseResponseDTO {
 
 type ExcerciseModifyDTO struct {
 	ID              string
-	Name            string
-	Description     string
-	Category        string
-	MainMuscleGroup string
-	DifficultLevel  string
-	Example         string
-	Instructions    string
+	Name            string `json:"name" binding:"required"`
+	Description     string `json:"description" binding:"required"`
+	Category        string `json:"category" binding:"required"`
+	MainMuscleGroup string `json:"main_muscle_group" binding:"required"`
+	DifficultLevel  string `json:"difficult_level" binding:"required"`
+	Example         string `json:"example" binding:"required"`
+	Instructions    string `json:"instructions" binding:"required"`
 }
 
 func GetModelExcerciseModify(excercise *ExcerciseModifyDTO) *models.Excercise {
