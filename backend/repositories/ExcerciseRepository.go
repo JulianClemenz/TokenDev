@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"AppFitness/dto"
 	"AppFitness/models"
 	"AppFitness/utils"
 	"context"
@@ -17,6 +18,7 @@ type ExcerciseRepositoryInterface interface {
 	PutExcercise(excercise models.Excercise) (*mongo.UpdateResult, error)
 	DeleteExcercise(id string) (*mongo.DeleteResult, error)
 	ExistByName(name string) (bool, error)
+	GetByFilters(filterDTO dto.ExerciseFilterDTO) ([]models.Excercise, error)
 }
 
 type ExcerciseRepository struct { //campo para la conexion a la base de datos
@@ -117,4 +119,36 @@ func (r ExcerciseRepository) ExistByName(name string) (bool, error) {
 	}
 
 	return count > 0, err
+}
+
+func (repository ExcerciseRepository) GetByFilters(filterDTO dto.ExerciseFilterDTO) ([]*models.Excercise, error) {
+	collection := repository.db.GetClient().Database("AppFitness").Collection("excercises")
+	filter := bson.M{}
+	if filterDTO.Name != "" {
+		filter["name"] = filterDTO.Name
+	}
+	if filterDTO.Category != "" {
+		filter["category"] = filterDTO.Category
+	}
+	if filterDTO.MuscleGroup != "" {
+		filter["main_muscle_group"] = filterDTO.MuscleGroup
+	}
+
+	result, err := collection.Find(context.TODO(), filter)
+	if err != nil {
+		return nil, fmt.Errorf("erro al buscar ejercicios: %v", err)
+	}
+	defer result.Close(context.TODO())
+
+	var excercises []*models.Excercise
+	for result.Next(context.TODO()) {
+		var e models.Excercise
+		if err := result.Decode(&e); err != nil { //decode deseriaiza el formato interno de mongo a el formato de model q nosotros tenemos (bson-->struct)
+			return nil, err
+		}
+		excercises = append(excercises, &e)
+	}
+
+	return excercises, nil
+
 }

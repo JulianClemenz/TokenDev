@@ -19,6 +19,38 @@ func NewExerciseHandler(exerciseService services.ExcerciseService) *ExerciseHand
 	}
 }
 
+func (h *ExerciseHandler) GetByFilters(c *gin.Context) {
+	_, exist := c.Get("user_id")
+	if !exist {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Usuario no autenticado"}) //401
+		return
+	}
+
+	var filter dto.ExerciseFilterDTO
+	if err := c.ShouldBindQuery(&filter); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	exercises, err := h.ExerciseService.GetByFilters(filter)
+	if err != nil {
+		msg := err.Error()
+		switch {
+		case strings.Contains(msg, "al menos un filtro"):
+			c.JSON(http.StatusBadRequest, gin.H{"error": msg}) // 400
+			return
+		case strings.Contains(msg, "obtener ejercicios"):
+			c.JSON(http.StatusInternalServerError, gin.H{"error": msg}) // 500
+			return
+		default:
+			c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
+			return
+		}
+	}
+	c.JSON(http.StatusOK, exercises)
+
+}
+
 func (h *ExerciseHandler) GetExcerciseByID(c *gin.Context) {
 	_, exist := c.Get("user_id")
 	if !exist {

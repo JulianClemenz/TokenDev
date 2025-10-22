@@ -40,7 +40,7 @@ type ExcerciseInRoutineDTO struct {
 	Weight      float64
 }
 
-func GetModelRoutineRegisterDTO(routine *RoutineRegisterDTO) *models.Routine {
+func GetModelRoutineRegisterDTO(routine *RoutineRegisterDTO) models.Routine {
 	return &models.Routine{
 		Name:          routine.Name,
 		CreatorUserID: utils.GetObjectIDFromStringID(routine.CreatorUserID),

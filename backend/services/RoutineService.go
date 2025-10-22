@@ -20,8 +20,7 @@ func NewRoutineService(routineRepository repositories.RoutineRepositoryInterface
 	}
 }
 
-func (service RoutineService) PostRoutine(routineDTO *dto.RoutineRegisterDTO) (*dto.RoutineResponseDTO, error) {
-	//VALIDACIONES
+func (service *RoutineService) PostRoutine(routineDTO *dto.RoutineRegisterDTO) (*dto.RoutineResponseDTO, error) {
 	//validacion de campos obligatorios
 	if routineDTO.Name == "" {
 		return nil, fmt.Errorf("el nombre de la rutina no puede estar vacío")
@@ -31,7 +30,7 @@ func (service RoutineService) PostRoutine(routineDTO *dto.RoutineRegisterDTO) (*
 	}
 
 	//LOGICA
-	result, err := service.RoutineRepository.PostRoutine(routineDTO.GetModelRoutineRegisterDTO()) //insertamos la rutina en la base de datos
+	result, err := service.RoutineRepository.PostRoutine(dto.GetModelRoutineRegisterDTO(routineDTO)) //insertamos la rutina en la base de datos
 	if err != nil {
 		return nil, fmt.Errorf("error al crear la rutina en RoutineService.PostRoutine(): %v", err)
 	}

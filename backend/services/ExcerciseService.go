@@ -19,6 +19,7 @@ type ExcerciseInterface interface { //POST, PUT y DELETE son accesibles solo por
 	//todos los usuarios
 	GetExcercises() ([]*dto.ExcerciseResponseDTO, error)
 	GetExcerciseByID(id string) (*dto.ExcerciseResponseDTO, error)
+	GetByFilters(filterDTO dto.ExerciseFilterDTO) ([]*dto.ExcerciseResponseDTO, error)
 }
 
 type ExcerciseService struct {
@@ -128,4 +129,22 @@ func (service *ExcerciseService) GetExcerciseByID(id string) (*dto.ExcerciseResp
 		return nil, fmt.Errorf("error al obtener ejercicio: %w", err)
 	}
 	return dto.NewExcerciseResponseDTO(userDB), nil
+}
+
+func (service *ExcerciseService) GetByFilters(filterDTO dto.ExerciseFilterDTO) ([]*dto.ExcerciseResponseDTO, error) {
+	if filterDTO.Name == "" && filterDTO.Category == "" && filterDTO.MuscleGroup == "" {
+		return nil, fmt.Errorf("debe ingresar al menos un filtro de búsqueda (nombre, categoría o grupo muscular)")
+	}
+
+	excercisesDB, err := service.ExcerciseRepository.GetByFilters(filterDTO)
+	if err != nil {
+		return nil, fmt.Errorf("error al botener ejercicios aplicando filtros")
+	}
+
+	var excercises []*dto.ExcerciseResponseDTO
+	for _, excerciseDB := range excercisesDB {
+		excercise := dto.NewExcerciseResponseDTO(excerciseDB)
+		excercises = append(excercises, excercise)
+	}
+	return excercises, nil
 }

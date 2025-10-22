@@ -112,3 +112,9 @@ func NewExcerciseModifyResponseDTO(excercise models.Excercise) *ExcerciseModifyR
 		EditionDate:     excercise.EditionDate,
 	}
 }
+
+type ExerciseFilterDTO struct {
+	Name        string `json:"name,omitempty"`
+	Category    string `json:"category,omitempty"`
+	MuscleGroup string `json:"muscle_group,omitempty"`
+}
