@@ -29,23 +29,29 @@ type ExcerciseInRoutine struct {
 */
 
 type RoutineRegisterDTO struct {
-	Name          string
-	CreatorUserID string //a setar en handler
-	ExcerciseList []ExcerciseInRoutineDTO
+	Name          string                 `json:"name" binding:"required,min=3"`
+	CreatorUserID string                 `json:"-"` // seteamos de el token en el handler
+	ExerciseList  []ExerciseInRoutineDTO `json:"exercise_list" binding:"omitempty,dive"`
 }
 type ExcerciseInRoutineDTO struct {
-	ExcerciseID string
-	Repetitions int
-	Series      int
-	Weight      float64
+	ExcerciseID string  
+	Repetitions int     `json:"repetitions"   binding:"required,gt=0"`
+	Series      int     `json:"series"        binding:"required,gt=0"`
+	Weight      float64 `json:"weight"        binding:"gte=0"`
 }
 
 func GetModelRoutineRegisterDTO(routine *RoutineRegisterDTO) models.Routine {
-	return &models.Routine{
+	return models.Routine{
 		Name:          routine.Name,
 		CreatorUserID: utils.GetObjectIDFromStringID(routine.CreatorUserID),
 		ExcerciseList: getModelExcerciseInRoutineList(routine.ExcerciseList),
 	}
+}
+
+type ExcerciseInRoutineResponseDTO struct {
+	Repetitions int     `json:"repetitions"   binding:"required,gt=0"`
+	Series      int     `json:"series"        binding:"required,gt=0"`
+	Weight      float64 `json:"weight"        binding:"gte=0"`
 }
 
 type RoutineResponseDTO struct {
@@ -60,7 +66,6 @@ type RoutineResponseDTO struct {
 
 func NewRoutineResponseDTO(routine models.Routine) *RoutineResponseDTO {
 	return &RoutineResponseDTO{
-		ID:              utils.GetStringIDFromObjectID(routine.ID),
 		Name:            routine.Name,
 		CreatorUserID:   int(routine.CreatorUserID.Hex()), //check
 		ExcerciseList:   newExcerciseInRoutineResponseDTOList(routine.ExcerciseList),
@@ -69,7 +74,20 @@ func NewRoutineResponseDTO(routine models.Routine) *RoutineResponseDTO {
 		CreationDate:    routine.CreationDate,
 	}
 }
+func newExcerciseInRoutineResponseDTO(exercise models.ExcerciseInRoutine) *ExcerciseInRoutineResponseDTO{
+	return &ExcerciseInRoutineResponseDTO{
+		Repetitions: exercise.Repetitions,    
+	    Series:      excercise.Series, 
+	    Weight:      excercise.Weight
 
-type RoutineModifyDTO struct{}
+	}
+
+}
+
+type RoutineModifyDTO struct {
+	Repetitions int     `json:"repetitions" binding:"required"`
+	Series      int     `json:"series" binding:"required"`
+	Weight      float64 `json:"weight" binding:"required"`
+}
 
 type RoutineModifyResponseDTO struct{}

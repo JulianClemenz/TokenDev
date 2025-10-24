@@ -1,13 +1,16 @@
 package repositories
 
 import (
+	"AppFitness/dto"
 	"AppFitness/models"
 	"AppFitness/utils"
 	"context"
 	"fmt"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type RoutineRepositoryInterface interface {
@@ -16,6 +19,10 @@ type RoutineRepositoryInterface interface {
 	GetRoutineByID(id string) (models.Routine, error)
 	PutRoutine(routine models.Routine) (*mongo.UpdateResult, error)
 	DeleteRoutine(id string) (*mongo.DeleteResult, error)
+	AddExerciseRutine(exercise dto.ExcerciseInRoutineDTO, idRutine primitive.ObjectID) (*mongo.UpdateResult, error)
+	UpdateExerciseInRoutine(idRutine primitive.ObjectID, idExercise primitive.ObjectID, exerciseMod dto.RoutineModifyDTO) (*mongo.UpdateResult, error)
+	DeleteExerciseToRutine(rutineID primitive.ObjectID, exerciseID primitive.ObjectID) (*mongo.UpdateResult, error)
+	ExistByRutineName(rutineName string) (bool, error)
 }
 
 type RoutineRepository struct {
@@ -58,8 +65,7 @@ func (repository RoutineRepository) GetRoutines() ([]models.Routine, error) {
 
 func (repository RoutineRepository) GetRoutineByID(id string) (models.Routine, error) {
 	collection := repository.db.GetClient().Database("AppFitness").Collection("routines")
-	objectID := utils.GetObjectIDFromStringID(id)
-	filter := bson.M{"_id": objectID}
+	filter := bson.M{"_id": id}
 
 	result := collection.FindOne(context.TODO(), filter)
 
@@ -91,4 +97,111 @@ func (repository RoutineRepository) DeleteRoutine(id string) (*mongo.DeleteResul
 		return result, fmt.Errorf("error al eliminar la rutina en RoutineRepository.DeleteRoutine(): %v", err)
 	}
 	return result, nil
+}
+
+func (repository RoutineRepository) AddExerciseRutine(exercise dto.ExcerciseInRoutineDTO, idRutine primitive.ObjectID) (*mongo.UpdateResult, error) {
+	collection := repository.db.GetClient().Database("AppFitness").Collection("routines")
+
+	update := bson.M{
+		"$push": bson.M{
+			"exercise_list": exercise,
+		},
+	}
+
+	result, err := collection.UpdateOne(
+		context.TODO(),
+		bson.M{"_id": idRutine},
+		update,
+	)
+
+	if err != nil {
+		return nil, fmt.Errorf("error al agregar ejercicio a la rutina: %v", err)
+	}
+
+	if result.MatchedCount == 0 {
+		return nil, fmt.Errorf("no se encontró ninguna rutina con el ID especificado")
+	}
+
+	return result, nil
+}
+
+func (repository RoutineRepository) UpdateExerciseInRoutine(idRutine primitive.ObjectID, idExercise primitive.ObjectID, exerciseMod dto.RoutineModifyDTO) (*mongo.UpdateResult, error) {
+	collection := repository.db.GetClient().Database("AppFitness").Collection("routines")
+
+	set := bson.M{}
+	if exerciseMod.Series > 0 {
+		set["exercise_list.$[e].series"] = exerciseMod.Series
+	}
+	if exerciseMod.Repetitions > 0 {
+		set["exercise_list.$[e].repetitions"] = exerciseMod.Repetitions
+	}
+	if exerciseMod.Weight >= 0 {
+		set["exercise_list.$[e].weight"] = exerciseMod.Weight
+	}
+	if len(set) == 0 {
+		return nil, fmt.Errorf("no se enviaron campos para actualizar")
+	}
+	opts := options.Update().SetArrayFilters(options.ArrayFilters{ //Esa línea crea las opciones que le dicen a MongoDB qué elemento del array debe modificar, en lugar de tocar todos.
+		Filters: []interface{}{bson.M{"e.exercise_id": idExercise}},
+	})
+
+	res, err := collection.UpdateOne( //y aca buscamos la rutina con su id y seteamos la linea de opciones anteriormente obtenidas
+		context.TODO(),
+		bson.M{"_id": idRutine},
+		bson.M{"$set": set},
+		opts,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("error al actualizar ejercicio en rutina: %v", err)
+	}
+	if res.MatchedCount == 0 {
+		return nil, fmt.Errorf("no se encontró la rutina")
+	}
+	if res.ModifiedCount == 0 {
+		return nil, fmt.Errorf("no se encontró el ejercicio dentro de la rutina")
+	}
+	return res, nil
+}
+
+func (repository RoutineRepository) DeleteExerciseToRutine(rutineID primitive.ObjectID, exerciseID primitive.ObjectID) (*mongo.UpdateResult, error) {
+	collection := repository.db.GetClient().Database("AppFitness").Collection("routines")
+
+	update := bson.M{
+		"$pull": bson.M{
+			"exercise_list": bson.M{
+				"exercise_id": exerciseID,
+			},
+		},
+	}
+	result, err := collection.UpdateOne(
+		context.TODO(),
+		bson.M{"_id": rutineID},
+		update,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("error al eliminar ejercicio de la rutina: %v", err)
+	}
+
+	if result.MatchedCount == 0 {
+		return nil, fmt.Errorf("no se encontró la rutina especificada")
+	}
+
+	if result.ModifiedCount == 0 {
+		return nil, fmt.Errorf("no se encontró el ejercicio dentro de la rutina")
+	}
+
+	return result, nil
+}
+
+func (r UserRepository) ExistByRutineName(rutineName string) (bool, error) { //verificamos si existe algun usuario con el mismo nombre de ussuario y lo llamamos de UserService
+	collection := r.db.GetClient().Database("AppFitness").Collection("routines")
+	filter := bson.M{"name": rutineName}
+
+	count, err := collection.CountDocuments(context.TODO(), filter)
+
+	if err != nil {
+		return false, fmt.Errorf("error al verificar nombre de usuario: %w", err)
+	}
+
+	return count > 0, err
 }
