@@ -77,7 +77,7 @@ func (service *RoutineService) PostRoutine(routineDTO *dto.RoutineRegisterDTO) (
 }
 
 func (service *RoutineService) GetRoutines() ([]*dto.RoutineResponseDTO, error) {
-	routinesDB, err := services.RoutineRepository.GetRoutines()
+	routinesDB, err := service.RoutineRepository.GetRoutines()
 	if err != nil {
 		return nil, fmt.Errorf("error al obtener rutinas %v:", err)
 	}

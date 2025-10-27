@@ -1,7 +1,6 @@
 package repositories
 
 import (
-	"AppFitness/dto"
 	"AppFitness/models"
 	"AppFitness/utils"
 	"context"
@@ -19,8 +18,8 @@ type RoutineRepositoryInterface interface {
 	GetRoutineByID(id string) (models.Routine, error)
 	PutRoutine(routine models.Routine) (*mongo.UpdateResult, error)
 	DeleteRoutine(id string) (*mongo.DeleteResult, error)
-	AddExerciseRutine(exercise dto.ExcerciseInRoutineDTO, idRutine primitive.ObjectID) (*mongo.UpdateResult, error)
-	UpdateExerciseInRoutine(idRutine primitive.ObjectID, idExercise primitive.ObjectID, exerciseMod dto.RoutineModifyDTO) (*mongo.UpdateResult, error)
+	AddExerciseRutine(exercise models.ExcerciseInRoutine, idRutine primitive.ObjectID) (*mongo.UpdateResult, error)
+	UpdateExerciseInRoutine(idRutine primitive.ObjectID, idExercise primitive.ObjectID, exerciseMod models.ExcerciseInRoutine) (*mongo.UpdateResult, error)
 	DeleteExerciseToRutine(rutineID primitive.ObjectID, exerciseID primitive.ObjectID) (*mongo.UpdateResult, error)
 	ExistByRutineName(rutineName string) (bool, error)
 }

@@ -23,7 +23,7 @@ func GetModelRoutineRegisterDTO(routine *RoutineRegisterDTO) *models.Routine {
 		CreatorUserID: utils.GetObjectIDFromStringID(routine.CreatorUserID),
 	}
 }
-func GetModelExerciseInRoutineDTO(excercise ExcerciseInRoutineDTO) models.ExcerciseInRoutine {
+func GetModelExerciseInRoutineDTO(excercise *ExcerciseInRoutineDTO) models.ExcerciseInRoutine {
 	return models.ExcerciseInRoutine{
 		ExcerciseID: utils.GetObjectIDFromStringID(excercise.ExcerciseID),
 		Repetitions: excercise.Repetitions,
