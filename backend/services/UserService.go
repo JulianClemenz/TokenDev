@@ -18,6 +18,7 @@ type UserInterface interface {
 	GetUserByID(id string) (*dto.UserResponseDTO, error)
 	PutUser(user *dto.UserModifyDTO) (*dto.UserModifyResponseDTO, error)
 	PasswordModify(dto dto.PasswordChange, id string) (bool, error)
+	//DELETE?
 }
 
 type UserService struct {
@@ -31,7 +32,6 @@ func NewUserService(UserRepository repositories.UserRepositoryInterface) *UserSe
 }
 
 func (service *UserService) PostUser(userDto *dto.UserRegisterDTO) (*dto.UserResponseDTO, error) {
-
 	//VALIDACIONES
 	if userDto.Weight < 0 { //comprobamos que el peso ingresado no sea negativo
 		return nil, fmt.Errorf("tu peso no puede ser menor a 0")

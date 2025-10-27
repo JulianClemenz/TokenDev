@@ -12,11 +12,9 @@ import (
 )
 
 type ExcerciseInterface interface { //POST, PUT y DELETE son accesibles solo por admins (reciben actor)
-	//admins
 	PostExcercise(excercise *dto.ExcerciseRegisterDTO, id string) (*dto.ExcerciseResponseDTO, error)
 	PutExcercise(excercise *dto.ExcerciseRegisterDTO) (*dto.ExcerciseResponseDTO, error)
 	DeleteExcercise(id string) (bool, error)
-	//todos los usuarios
 	GetExcercises() ([]*dto.ExcerciseResponseDTO, error)
 	GetExcerciseByID(id string) (*dto.ExcerciseResponseDTO, error)
 	GetByFilters(filterDTO dto.ExerciseFilterDTO) ([]*dto.ExcerciseResponseDTO, error)
@@ -147,4 +145,25 @@ func (service *ExcerciseService) GetByFilters(filterDTO dto.ExerciseFilterDTO) (
 		excercises = append(excercises, excercise)
 	}
 	return excercises, nil
+}
+
+func (service *ExcerciseService) DeleteExcercise(id string) (bool, error) {
+	//VALIDACIONES
+	result, err := service.ExcerciseRepository.GetExcerciseByID(id) //comprobamos que el ejercicio a eliminar existe
+	if err != nil {
+		return false, fmt.Errorf("error al obtener el ejercicio a eliminar: %w", err)
+	}
+	if result.ID.IsZero() {
+		return false, fmt.Errorf("no existe un ejercicio con el id proporcionado")
+	}
+
+	//LOGICA
+	deleteResult, err := service.ExcerciseRepository.DeleteExcercise(id) //ejecutamos delete en repository
+	if err != nil {
+		return false, err
+	}
+	if deleteResult.DeletedCount == 0 {
+		return false, fmt.Errorf("no se eliminó ningún ejercicio")
+	}
+	return true, nil
 }

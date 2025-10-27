@@ -99,7 +99,7 @@ func (repository RoutineRepository) DeleteRoutine(id string) (*mongo.DeleteResul
 	return result, nil
 }
 
-func (repository RoutineRepository) AddExerciseRutine(exercise dto.ExcerciseInRoutineDTO, idRutine primitive.ObjectID) (*mongo.UpdateResult, error) {
+func (repository RoutineRepository) AddExerciseRutine(exercise models.ExcerciseInRoutine, idRutine primitive.ObjectID) (*mongo.UpdateResult, error) {
 	collection := repository.db.GetClient().Database("AppFitness").Collection("routines")
 
 	update := bson.M{
@@ -125,7 +125,7 @@ func (repository RoutineRepository) AddExerciseRutine(exercise dto.ExcerciseInRo
 	return result, nil
 }
 
-func (repository RoutineRepository) UpdateExerciseInRoutine(idRutine primitive.ObjectID, idExercise primitive.ObjectID, exerciseMod dto.RoutineModifyDTO) (*mongo.UpdateResult, error) {
+func (repository RoutineRepository) UpdateExerciseInRoutine(idRutine primitive.ObjectID, idExercise primitive.ObjectID, exerciseMod models.ExcerciseInRoutine) (*mongo.UpdateResult, error) {
 	collection := repository.db.GetClient().Database("AppFitness").Collection("routines")
 
 	set := bson.M{}
