@@ -11,10 +11,10 @@ type RoutineRegisterDTO struct {
 	CreatorUserID string
 }
 type ExcerciseInRoutineDTO struct {
-	ExcerciseID string
-	Repetitions int
-	Series      int
-	Weight      float64
+	ExcerciseID string  `json:"exercise_id" binding:"required"`
+	Repetitions int     `json:"repetitions" binding:"required,gt=0,lte=100"`
+	Series      int     `json:"series" binding:"required,gt=0,lte=20"`
+	Weight      float64 `json:"weight" binding:"gte=0,lte=1000"`
 }
 
 func GetModelRoutineRegisterDTO(routine *RoutineRegisterDTO) *models.Routine {

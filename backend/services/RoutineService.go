@@ -16,7 +16,7 @@ type RoutineInterface interface {
 	GetRoutines() ([]*dto.RoutineResponseDTO, error)
 	GetRoutineByID(id string) (*dto.RoutineResponseDTO, error)
 	PutRoutine(modify dto.RoutineModifyDTO) (*dto.RoutineResponseDTO, error)
-	AddExcerciseToRoutine(routineID string, exercise *dto.ExcerciseInRoutineDTO) (*dto.RoutineResponseDTO, error)
+	AddExcerciseToRoutine(routineID string, exercise *dto.ExcerciseInRoutineDTO, idEditor string) (*dto.RoutineResponseDTO, error)
 	RemoveExcerciseFromRoutine(remove dto.RoutineRemoveDTO) (*dto.RoutineResponseDTO, error)
 	UpdateExerciseInRoutine(routineID string, exerciseId string, exerciseMod *dto.ExcerciseInRoutineDTO) (*dto.RoutineResponseDTO, error)
 	DeleteRoutine(id string) (bool, error)
@@ -140,7 +140,21 @@ func (service *RoutineService) PutRoutine(modify dto.RoutineModifyDTO) (*dto.Rou
 	return dto.NewRoutineResponseDTO(*updatedRoutineDB), nil
 }
 
-func (service *RoutineService) AddExcerciseToRoutine(routineID string, exercise *dto.ExcerciseInRoutineDTO) (*dto.RoutineResponseDTO, error) {
+func (service *RoutineService) AddExcerciseToRoutine(routineID string, exercise *dto.ExcerciseInRoutineDTO, idEditor string) (*dto.RoutineResponseDTO, error) {
+	//busqueda de rutina
+	routineDB, err := service.RoutineRepository.GetRoutineByID(routineID)
+	if err != nil {
+		return nil, fmt.Errorf("error al obtener la rutina a modificar: %w", err)
+	}
+	if routineDB.ID.IsZero() {
+		return nil, fmt.Errorf("no existe ninguna rutina con ese ID")
+	}
+	idCreator := utils.GetStringIDFromObjectID(routineDB.CreatorUserID)
+
+	if idCreator != idEditor {
+		return nil, fmt.Errorf("Al no ser el creador de esta rutina no se brinda permisos para dicha accion")
+	}
+	id := utils.GetObjectIDFromStringID(routineID) //convertimos para pasar a el repository
 
 	//busqueda de ej
 	exerciseDB, err := service.ExcerciseRepository.GetExcerciseByID(exercise.ExcerciseID)
@@ -150,16 +164,6 @@ func (service *RoutineService) AddExcerciseToRoutine(routineID string, exercise 
 	if exerciseDB.ID.IsZero() {
 		return nil, fmt.Errorf("no existe ningún ejercicio con ese ID")
 	}
-
-	//busqueda de rutina
-	routineDB, err := service.RoutineRepository.GetRoutineByID(routineID)
-	if err != nil {
-		return nil, fmt.Errorf("error al obtener la rutina a modificar: %w", err)
-	}
-	if routineDB.ID.IsZero() {
-		return nil, fmt.Errorf("no existe ninguna rutina con ese ID")
-	}
-	id := utils.GetObjectIDFromStringID(routineID) //convertimos para pasar a el repository
 
 	//convertimos dto a model
 	exerciseModel := dto.GetModelExerciseInRoutineDTO(exercise)

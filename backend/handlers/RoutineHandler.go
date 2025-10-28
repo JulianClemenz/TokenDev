@@ -171,3 +171,56 @@ func (h *RoutineHandler) PutRoutine(c *gin.Context) {
 
 	c.JSON(http.StatusOK, result)
 }
+
+func (h *RoutineHandler) AddExcerciseToRoutine(c *gin.Context) {
+	idEditor, exist := c.Get("user_id")
+	if !exist {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Usuario no autenticado"})
+		return
+	}
+
+	idRoutine := c.Param("id")
+	var exercise dto.ExcerciseInRoutineDTO
+	if err := c.ShouldBindJSON(&exercise); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	result, err := h.RoutineService.AddExcerciseToRoutine(idRoutine, &exercise, idEditor.(string))
+	if err != nil {
+		msg := err.Error()
+		switch {
+		// permisos
+		case strings.Contains(msg, "Al no ser el creador de esta rutina"):
+			c.JSON(http.StatusForbidden, gin.H{"error": msg}) // 403
+			return
+
+		// no encontrados
+		case strings.Contains(msg, "no existe ninguna rutina con ese ID"),
+			strings.Contains(msg, "no existe ningún ejercicio con ese ID"),
+			strings.Contains(msg, "no existe ninguna rutina con ese ID, error al agregar ejercicio"):
+			c.JSON(http.StatusNotFound, gin.H{"error": msg}) // 404
+			return
+
+		//no se agregó nada
+		case strings.Contains(msg, "no se agregó ningún ejercicio a la rutina"):
+			c.JSON(http.StatusConflict, gin.H{"error": msg}) // 409 (conflicto de negocio)
+			return
+
+		// errores DB
+		case strings.Contains(msg, "error al obtener la rutina a modificar"),
+			strings.Contains(msg, "error al obtener el ejercicio a agregar"),
+			strings.Contains(msg, "error al agregar el ejercicio a la rutina"),
+			strings.Contains(msg, "error al actualizar la fecha de edición de la rutina"),
+			strings.Contains(msg, "error al obtener la rutina modificada"):
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "error interno al agregar ejercicio a la rutina"}) // 500
+			return
+
+		default:
+			c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
+			return
+		}
+	}
+
+	c.JSON(http.StatusOK, result)
+}
