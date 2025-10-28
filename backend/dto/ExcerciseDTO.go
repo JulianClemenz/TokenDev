@@ -11,6 +11,7 @@ import (
 // ExcerciseModifyDTO
 
 type ExcerciseRegisterDTO struct {
+	CreatorUserID   string
 	Name            string `json:"name" bson:"name" binding:"required"`
 	Description     string `json:"description" bson:"description" binding:"required"`
 	Category        string `json:"category" bson:"category" binding:"required"`

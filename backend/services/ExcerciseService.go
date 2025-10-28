@@ -12,7 +12,7 @@ import (
 )
 
 type ExcerciseInterface interface { //POST, PUT y DELETE son accesibles solo por admins (reciben actor)
-	PostExcercise(excercise *dto.ExcerciseRegisterDTO, id string) (*dto.ExcerciseResponseDTO, error)
+	PostExcercise(excercise *dto.ExcerciseRegisterDTO) (*dto.ExcerciseResponseDTO, error)
 	PutExcercise(excercise *dto.ExcerciseRegisterDTO) (*dto.ExcerciseResponseDTO, error)
 	DeleteExcercise(id string) (bool, error)
 	GetExcercises() ([]*dto.ExcerciseResponseDTO, error)
@@ -30,7 +30,7 @@ func NewExcerciseService(ExcerciseRepository repositories.ExcerciseRepositoryInt
 	}
 }
 
-func (service *ExcerciseService) PostExcercise(excerciseDto *dto.ExcerciseRegisterDTO, id string) (*dto.ExcerciseResponseDTO, error) {
+func (service *ExcerciseService) PostExcercise(excerciseDto *dto.ExcerciseRegisterDTO) (*dto.ExcerciseResponseDTO, error) {
 
 	// Validaciones de campos obligatorios
 	if strings.TrimSpace(excerciseDto.Name) == "" {
@@ -59,9 +59,9 @@ func (service *ExcerciseService) PostExcercise(excerciseDto *dto.ExcerciseRegist
 	}
 
 	//LOGICA
-	excerciseModel := dto.GetModelExcerciseRegister(excerciseDto)             //convertimos el dto a modelo para el repository
-	excerciseModel.CreatorUserID = utils.GetObjectIDFromStringID(id)          //asignamos el ObjectID del usuario que crea el ejercicio
-	result, err := service.ExcerciseRepository.PostExcercise(*excerciseModel) //ejecutamos post en repository
+	excerciseModel := dto.GetModelExcerciseRegister(excerciseDto)                            //convertimos el dto a modelo para el repository
+	excerciseModel.CreatorUserID = utils.GetObjectIDFromStringID(excerciseDto.CreatorUserID) //asignamos el ObjectID del usuario que crea el ejercicio
+	result, err := service.ExcerciseRepository.PostExcercise(*excerciseModel)                //ejecutamos post en repository
 	if err != nil {
 		return nil, err
 	}

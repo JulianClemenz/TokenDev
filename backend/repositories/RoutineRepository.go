@@ -14,8 +14,8 @@ import (
 
 type RoutineRepositoryInterface interface {
 	PostRoutine(models.Routine) (*mongo.InsertOneResult, error)
-	GetRoutines() ([]models.Routine, error)
-	GetRoutineByID(id string) (models.Routine, error)
+	GetRoutines() ([]*models.Routine, error)
+	GetRoutineByID(id string) (*models.Routine, error)
 	PutRoutine(routine models.Routine) (*mongo.UpdateResult, error)
 	DeleteRoutine(id string) (*mongo.DeleteResult, error)
 	AddExerciseRutine(exercise models.ExcerciseInRoutine, idRutine primitive.ObjectID) (*mongo.UpdateResult, error)

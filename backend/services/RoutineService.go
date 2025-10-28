@@ -15,9 +15,9 @@ type RoutineInterface interface {
 	PostRoutine(routineDTO *dto.RoutineRegisterDTO) (*dto.RoutineResponseDTO, error)
 	GetRoutines() ([]*dto.RoutineResponseDTO, error)
 	GetRoutineByID(id string) (*dto.RoutineResponseDTO, error)
-	PutRoutine(name string, id string) (*dto.RoutineResponseDTO, error)
+	PutRoutine(modify dto.RoutineModifyDTO) (*dto.RoutineResponseDTO, error)
 	AddExcerciseToRoutine(routineID string, exercise *dto.ExcerciseInRoutineDTO) (*dto.RoutineResponseDTO, error)
-	RemoveExcerciseFromRoutine(routineID string, excerciseID string) (*dto.RoutineResponseDTO, error)
+	RemoveExcerciseFromRoutine(remove dto.RoutineRemoveDTO) (*dto.RoutineResponseDTO, error)
 	UpdateExerciseInRoutine(routineID string, exerciseId string, exerciseMod *dto.ExcerciseInRoutineDTO) (*dto.RoutineResponseDTO, error)
 	DeleteRoutine(id string) (bool, error)
 }
@@ -56,7 +56,7 @@ func (service *RoutineService) PostRoutine(routineDTO *dto.RoutineRegisterDTO) (
 
 	//LOGICA
 	model := dto.GetModelRoutineRegisterDTO(routineDTO)
-	result, err := service.RoutineRepository.PostRoutine(model) //insertamos la rutina en la base de datos
+	result, err := service.RoutineRepository.PostRoutine(*model) //insertamos la rutina en la base de datos
 	if err != nil {
 		return nil, fmt.Errorf("error al crear la rutina en RoutineService.PostRoutine(): %v", err)
 	}
@@ -73,7 +73,7 @@ func (service *RoutineService) PostRoutine(routineDTO *dto.RoutineRegisterDTO) (
 		return nil, fmt.Errorf("error al obtener la rutina creada en RoutineService.PostRoutine(): %v", err)
 	}
 
-	return dto.NewRoutineResponseDTO(routineModel), nil
+	return dto.NewRoutineResponseDTO(*routineModel), nil
 }
 
 func (service *RoutineService) GetRoutines() ([]*dto.RoutineResponseDTO, error) {
@@ -81,9 +81,14 @@ func (service *RoutineService) GetRoutines() ([]*dto.RoutineResponseDTO, error) 
 	if err != nil {
 		return nil, fmt.Errorf("error al obtener rutinas %v:", err)
 	}
+
+	if len(routinesDB) == 0 {
+		return nil, fmt.Errorf("no existen rutinas registradas")
+	}
+
 	var routines []*dto.RoutineResponseDTO
 	for _, routineDB := range routinesDB {
-		routine := dto.NewRoutineResponseDTO(routineDB)
+		routine := dto.NewRoutineResponseDTO(*routineDB)
 		routines = append(routines, routine)
 	}
 
@@ -95,38 +100,44 @@ func (service *RoutineService) GetRoutineByID(id string) (*dto.RoutineResponseDT
 	if err != nil {
 		return nil, fmt.Errorf("error al obtener la rutina por ID en RoutineService.GetRoutineByID(): %v", err)
 	}
-	return dto.NewRoutineResponseDTO(routineDB), nil
+	if routineDB == nil || routineDB.ID.IsZero() {
+		return nil, fmt.Errorf("no existe ninguna rutina con el ID proporcionado")
+	}
+	return dto.NewRoutineResponseDTO(*routineDB), nil
 }
 
 // PUT SOLO DE NAME
-func (service *RoutineService) PutRoutine(name string, id string) (*dto.RoutineResponseDTO, error) {
+func (service *RoutineService) PutRoutine(modify dto.RoutineModifyDTO) (*dto.RoutineResponseDTO, error) {
 
-	if strings.TrimSpace(name) == "" {
+	if strings.TrimSpace(modify.Name) == "" {
 		return nil, fmt.Errorf("el nombre de la rutina no puede estar vacío")
 	}
-	routineDB, err := service.RoutineRepository.GetRoutineByID(id)
+	routineDB, err := service.RoutineRepository.GetRoutineByID(modify.IDRoutine)
 	if err != nil {
 		return nil, fmt.Errorf("error al obtener la rutina a modificar en RoutineService.PutRoutine(): %v", err)
 	}
-	if routineDB.Name == name {
+	if routineDB.Name == modify.Name {
 		return nil, fmt.Errorf("el nuevo nombre de la rutina no puede ser igual al anterior")
 	}
+	if routineDB == nil || routineDB.ID.IsZero() {
+		return nil, fmt.Errorf("no existe ninguna rutina con ese ID")
+	}
 
-	routineDB.Name = strings.ToLower(strings.TrimSpace(name))
+	routineDB.Name = strings.ToLower(strings.TrimSpace(modify.Name))
 	routineDB.EditionDate = time.Now()
 
-	result, err := service.RoutineRepository.PutRoutine(routineDB)
+	result, err := service.RoutineRepository.PutRoutine(*routineDB)
 	if err != nil {
 		return nil, fmt.Errorf("error al modificar la rutina en RoutineService.PutRoutine(): %v", err)
 	}
 	if result.ModifiedCount == 0 {
 		return nil, fmt.Errorf("no se modificó ninguna rutina")
 	}
-	updatedRoutineDB, err := service.RoutineRepository.GetRoutineByID(id)
+	updatedRoutineDB, err := service.RoutineRepository.GetRoutineByID(modify.IDRoutine)
 	if err != nil {
 		return nil, fmt.Errorf("error al obtener la rutina modificada en RoutineService.PutRoutine(): %v", err)
 	}
-	return dto.NewRoutineResponseDTO(updatedRoutineDB), nil
+	return dto.NewRoutineResponseDTO(*updatedRoutineDB), nil
 }
 
 func (service *RoutineService) AddExcerciseToRoutine(routineID string, exercise *dto.ExcerciseInRoutineDTO) (*dto.RoutineResponseDTO, error) {
@@ -165,7 +176,7 @@ func (service *RoutineService) AddExcerciseToRoutine(routineID string, exercise 
 
 	//modificar la fecha de edición de la rutina
 	routineDB.EditionDate = time.Now()
-	_, err = service.RoutineRepository.PutRoutine(routineDB)
+	_, err = service.RoutineRepository.PutRoutine(*routineDB)
 	if err != nil {
 		return nil, fmt.Errorf("error al actualizar la fecha de edición de la rutina en RoutineService.AddExcerciseToRoutine(): %v", err)
 	}
@@ -178,28 +189,28 @@ func (service *RoutineService) AddExcerciseToRoutine(routineID string, exercise 
 	if updatedRoutineDB.ID.IsZero() {
 		return nil, fmt.Errorf("no existe ninguna rutina con ese ID, error al agregar ejercicio")
 	}
-	return dto.NewRoutineResponseDTO(updatedRoutineDB), nil
+	return dto.NewRoutineResponseDTO(*updatedRoutineDB), nil
 }
 
-func (service *RoutineService) RemoveExcerciseFromRoutine(routineID string, excerciseID string) (*dto.RoutineResponseDTO, error) {
+func (service *RoutineService) RemoveExcerciseFromRoutine(remove dto.RoutineRemoveDTO) (*dto.RoutineResponseDTO, error) {
 	//validaciones
-	routineDB, err := service.RoutineRepository.GetRoutineByID(routineID)
+	routineDB, err := service.RoutineRepository.GetRoutineByID(remove.IDRoutine)
 	if err != nil {
 		return nil, fmt.Errorf("error al obtener la rutina a modificar: %w", err)
 	}
 	if routineDB.ID.IsZero() {
 		return nil, fmt.Errorf("no existe ninguna rutina con ese ID")
 	}
-	routineObjectID := utils.GetObjectIDFromStringID(routineID)
+	routineObjectID := utils.GetObjectIDFromStringID(remove.IDRoutine)
 
-	exerciseDB, err := service.ExcerciseRepository.GetExcerciseByID(excerciseID)
+	exerciseDB, err := service.ExcerciseRepository.GetExcerciseByID(remove.IDExercise)
 	if err != nil {
 		return nil, fmt.Errorf("error al obtener el ejercicio a eliminar: %w", err)
 	}
 	if exerciseDB.ID.IsZero() {
 		return nil, fmt.Errorf("no existe ningún ejercicio con ese ID")
 	}
-	exerciseObjectID := utils.GetObjectIDFromStringID(excerciseID)
+	exerciseObjectID := utils.GetObjectIDFromStringID(remove.IDExercise)
 
 	//lógica de eliminación
 	result, err := service.RoutineRepository.DeleteExerciseToRutine(routineObjectID, exerciseObjectID)
@@ -212,20 +223,20 @@ func (service *RoutineService) RemoveExcerciseFromRoutine(routineID string, exce
 
 	//modificar la fecha de edición de la rutina
 	routineDB.EditionDate = time.Now()
-	_, err = service.RoutineRepository.PutRoutine(routineDB)
+	_, err = service.RoutineRepository.PutRoutine(*routineDB)
 	if err != nil {
 		return nil, fmt.Errorf("error al actualizar la fecha de edición de la rutina en RoutineService.RemoveExcerciseFromRoutine(): %v", err)
 	}
 
 	//buscamos rutina para devolver
-	updatedRoutineDB, err := service.RoutineRepository.GetRoutineByID(routineID)
+	updatedRoutineDB, err := service.RoutineRepository.GetRoutineByID(remove.IDRoutine)
 	if err != nil {
 		return nil, fmt.Errorf("error al obtener la rutina modificada en RoutineService.RemoveExcerciseFromRoutine(): %v", err)
 	}
 	if updatedRoutineDB.ID.IsZero() {
 		return nil, fmt.Errorf("no existe ninguna rutina con ese ID, error al eliminar ejercicio")
 	}
-	return dto.NewRoutineResponseDTO(updatedRoutineDB), nil
+	return dto.NewRoutineResponseDTO(*updatedRoutineDB), nil
 }
 
 func (service *RoutineService) UpdateExerciseInRoutine(routineID string, exerciseId string, exerciseMod *dto.ExcerciseInRoutineDTO) (*dto.RoutineResponseDTO, error) {
@@ -261,7 +272,7 @@ func (service *RoutineService) UpdateExerciseInRoutine(routineID string, exercis
 
 	//modificar la fecha de edición de la rutina
 	routineDB.EditionDate = time.Now()
-	_, err = service.RoutineRepository.PutRoutine(routineDB)
+	_, err = service.RoutineRepository.PutRoutine(*routineDB)
 	if err != nil {
 		return nil, fmt.Errorf("error al actualizar la fecha de edición de la rutina en RoutineService.UpdateExerciseInRoutine(): %v", err)
 	}
@@ -274,7 +285,7 @@ func (service *RoutineService) UpdateExerciseInRoutine(routineID string, exercis
 	if updatedRoutineDB.ID.IsZero() {
 		return nil, fmt.Errorf("no existe ninguna rutina con ese ID, error al modificar ejercicio")
 	}
-	return dto.NewRoutineResponseDTO(updatedRoutineDB), nil
+	return dto.NewRoutineResponseDTO(*updatedRoutineDB), nil
 }
 
 func (service *RoutineService) DeleteRoutine(id string) (bool, error) {

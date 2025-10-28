@@ -110,7 +110,9 @@ func (h *ExerciseHandler) PostExcercise(c *gin.Context) {
 		return
 	}
 
-	resultado, err := h.ExerciseService.PostExcercise(&exercise, idUser.(string))
+	exercise.CreatorUserID = idUser.(string)
+
+	resultado, err := h.ExerciseService.PostExcercise(&exercise)
 	if err != nil {
 		msg := err.Error()
 		switch {

@@ -31,8 +31,8 @@ func NewExcerciseRepository(db DB) *ExcerciseRepository {
 	}
 }
 
-func (repositori ExcerciseRepository) PostExcercise(excercise models.Excercise) (*mongo.InsertOneResult, error) {
-	collection := repositori.db.GetClient().Database("AppFitness").Collection("excercises")
+func (repository ExcerciseRepository) PostExcercise(excercise models.Excercise) (*mongo.InsertOneResult, error) {
+	collection := repository.db.GetClient().Database("AppFitness").Collection("excercises")
 	resultado, err := collection.InsertOne(context.TODO(), excercise)
 	if err != nil {
 		return resultado, fmt.Errorf("error al insertar el ejercicio en ExcerciseRepository.PostExcercise(): %v", err)

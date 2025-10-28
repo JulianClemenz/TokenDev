@@ -8,7 +8,7 @@ import (
 
 type RoutineRegisterDTO struct {
 	Name          string
-	CreatorUserID string //a setar en handler
+	CreatorUserID string
 }
 type ExcerciseInRoutineDTO struct {
 	ExcerciseID string
@@ -67,6 +67,12 @@ func NewRoutineResponseDTO(routine models.Routine) *RoutineResponseDTO {
 	}
 }
 
-type RoutineModifyDTO struct{}
+type RoutineModifyDTO struct {
+	IDRoutine string
+	Name      string
+}
 
-type RoutineModifyResponseDTO struct{}
+type RoutineRemoveDTO struct {
+	IDExercise string
+	IDRoutine  string
+}
