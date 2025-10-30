@@ -43,16 +43,19 @@ func (repository RoutineRepository) PostRoutine(routine models.Routine) (*mongo.
 	return result, nil
 }
 
-func (repository RoutineRepository) GetRoutines() ([]models.Routine, error) {
+func (repository RoutineRepository) GetRoutines() ([]*models.Routine, error) {
 	collection := repository.db.GetClient().Database("AppFitness").Collection("routines")
 	filter := bson.M{}
 
 	cursor, err := collection.Find(context.TODO(), filter)
+	if err != nil {
+		return nil, fmt.Errorf("error en Find() RoutineRepository.GetRoutines(): %v", err)
+	}
 	defer cursor.Close(context.TODO())
 
-	var routines []models.Routine
+	var routines []*models.Routine
 	for cursor.Next(context.Background()) {
-		var routine models.Routine
+		var routine *models.Routine
 		err := cursor.Decode(&routine)
 		if err != nil {
 			return nil, fmt.Errorf("error al decodificar la rutina en RoutineRepository.GetRoutines(): %v", err)
@@ -62,16 +65,17 @@ func (repository RoutineRepository) GetRoutines() ([]models.Routine, error) {
 	return routines, err
 }
 
-func (repository RoutineRepository) GetRoutineByID(id string) (models.Routine, error) {
+func (repository RoutineRepository) GetRoutineByID(id string) (*models.Routine, error) {
 	collection := repository.db.GetClient().Database("AppFitness").Collection("routines")
-	filter := bson.M{"_id": id}
+	objID := utils.GetObjectIDFromStringID(id)
+	filter := bson.M{"_id": objID}
 
 	result := collection.FindOne(context.TODO(), filter)
 
-	var routine models.Routine
+	var routine *models.Routine
 	err := result.Decode(&routine)
 	if err != nil {
-		return models.Routine{}, fmt.Errorf("error al obtener la rutina en RoutineRepository.GetRoutineByID(): %v", err)
+		return nil, fmt.Errorf("error al obtener la rutina en RoutineRepository.GetRoutineByID(): %v", err)
 	}
 	return routine, nil
 }
@@ -192,7 +196,7 @@ func (repository RoutineRepository) DeleteExerciseToRutine(rutineID primitive.Ob
 	return result, nil
 }
 
-func (r UserRepository) ExistByRutineName(rutineName string) (bool, error) { //verificamos si existe algun usuario con el mismo nombre de ussuario y lo llamamos de UserService
+func (r RoutineRepository) ExistByRutineName(rutineName string) (bool, error) { //verificamos si existe algun usuario con el mismo nombre de ussuario y lo llamamos de UserService
 	collection := r.db.GetClient().Database("AppFitness").Collection("routines")
 	filter := bson.M{"name": rutineName}
 

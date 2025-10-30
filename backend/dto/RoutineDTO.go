@@ -73,6 +73,22 @@ type RoutineModifyDTO struct {
 }
 
 type RoutineRemoveDTO struct {
-	IDExercise string
-	IDRoutine  string
+	IDExercise string `json:"exercise_id" binding:"required"`
+	IDRoutine  string `json:"reoutine_id" binding:"required"`
+}
+
+type ExcerciseInRoutineModifyDTO struct {
+	RoutineID   string
+	ExcerciseID string
+	Repetitions int     `json:"repetitions" binding:"required,gt=0,lte=100"`
+	Series      int     `json:"series" binding:"required,gt=0,lte=20"`
+	Weight      float64 `json:"weight" binding:"gte=0,lte=1000"`
+}
+
+func GetModelFromExerciseInRoutineModifyDTO(excercise *ExcerciseInRoutineModifyDTO) models.ExcerciseInRoutine {
+	return models.ExcerciseInRoutine{
+		Repetitions: excercise.Repetitions,
+		Series:      excercise.Series,
+		Weight:      excercise.Weight,
+	}
 }

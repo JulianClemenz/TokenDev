@@ -18,8 +18,8 @@ type RoutineInterface interface {
 	PutRoutine(modify dto.RoutineModifyDTO) (*dto.RoutineResponseDTO, error)
 	AddExcerciseToRoutine(routineID string, exercise *dto.ExcerciseInRoutineDTO, idEditor string) (*dto.RoutineResponseDTO, error)
 	RemoveExcerciseFromRoutine(remove dto.RoutineRemoveDTO) (*dto.RoutineResponseDTO, error)
-	UpdateExerciseInRoutine(routineID string, exerciseId string, exerciseMod *dto.ExcerciseInRoutineDTO) (*dto.RoutineResponseDTO, error)
-	DeleteRoutine(id string) (bool, error)
+	UpdateExerciseInRoutine(idEditor string, exerciseMod *dto.ExcerciseInRoutineModifyDTO) (*dto.RoutineResponseDTO, error)
+	DeleteRoutine(id string, idEditor string) (bool, error)
 }
 
 type RoutineService struct {
@@ -109,18 +109,19 @@ func (service *RoutineService) GetRoutineByID(id string) (*dto.RoutineResponseDT
 // PUT SOLO DE NAME
 func (service *RoutineService) PutRoutine(modify dto.RoutineModifyDTO) (*dto.RoutineResponseDTO, error) {
 
-	if strings.TrimSpace(modify.Name) == "" {
-		return nil, fmt.Errorf("el nombre de la rutina no puede estar vacío")
-	}
 	routineDB, err := service.RoutineRepository.GetRoutineByID(modify.IDRoutine)
 	if err != nil {
 		return nil, fmt.Errorf("error al obtener la rutina a modificar en RoutineService.PutRoutine(): %v", err)
 	}
-	if routineDB.Name == modify.Name {
-		return nil, fmt.Errorf("el nuevo nombre de la rutina no puede ser igual al anterior")
-	}
 	if routineDB == nil || routineDB.ID.IsZero() {
 		return nil, fmt.Errorf("no existe ninguna rutina con ese ID")
+	}
+	newName := strings.ToLower(strings.TrimSpace(modify.Name))
+	if newName == "" {
+		return nil, fmt.Errorf("el nombre de la rutina no puede estar vacío")
+	}
+	if strings.ToLower(strings.TrimSpace(routineDB.Name)) == newName {
+		return nil, fmt.Errorf("el nuevo nombre de la rutina no puede ser igual al anterior")
 	}
 
 	routineDB.Name = strings.ToLower(strings.TrimSpace(modify.Name))
@@ -196,7 +197,7 @@ func (service *RoutineService) AddExcerciseToRoutine(routineID string, exercise 
 	return dto.NewRoutineResponseDTO(*updatedRoutineDB), nil
 }
 
-func (service *RoutineService) RemoveExcerciseFromRoutine(remove dto.RoutineRemoveDTO) (*dto.RoutineResponseDTO, error) {
+func (service *RoutineService) RemoveExcerciseFromRoutine(idEditor string, remove dto.RoutineRemoveDTO) (*dto.RoutineResponseDTO, error) {
 	//validaciones
 	routineDB, err := service.RoutineRepository.GetRoutineByID(remove.IDRoutine)
 	if err != nil {
@@ -204,6 +205,11 @@ func (service *RoutineService) RemoveExcerciseFromRoutine(remove dto.RoutineRemo
 	}
 	if routineDB.ID.IsZero() {
 		return nil, fmt.Errorf("no existe ninguna rutina con ese ID")
+	}
+	idCreator := utils.GetStringIDFromObjectID(routineDB.CreatorUserID)
+
+	if idCreator != idEditor {
+		return nil, fmt.Errorf("Al no ser el creador de esta rutina no se brinda permisos para dicha accion")
 	}
 	routineObjectID := utils.GetObjectIDFromStringID(remove.IDRoutine)
 
@@ -243,29 +249,34 @@ func (service *RoutineService) RemoveExcerciseFromRoutine(remove dto.RoutineRemo
 	return dto.NewRoutineResponseDTO(*updatedRoutineDB), nil
 }
 
-func (service *RoutineService) UpdateExerciseInRoutine(routineID string, exerciseId string, exerciseMod *dto.ExcerciseInRoutineDTO) (*dto.RoutineResponseDTO, error) {
+func (service *RoutineService) UpdateExerciseInRoutine(idEditor string, exerciseMod *dto.ExcerciseInRoutineModifyDTO) (*dto.RoutineResponseDTO, error) {
 
 	//validaciones
-	routineDB, err := service.RoutineRepository.GetRoutineByID(routineID)
+	routineDB, err := service.RoutineRepository.GetRoutineByID(exerciseMod.RoutineID)
 	if err != nil {
 		return nil, fmt.Errorf("error al obtener la rutina a modificar: %w", err)
 	}
 	if routineDB.ID.IsZero() {
 		return nil, fmt.Errorf("no existe ninguna rutina con ese ID")
 	}
-	routineObjectID := utils.GetObjectIDFromStringID(routineID)
+	idCreator := utils.GetStringIDFromObjectID(routineDB.CreatorUserID)
 
-	exerciseDB, err := service.ExcerciseRepository.GetExcerciseByID(exerciseId)
+	if idCreator != idEditor {
+		return nil, fmt.Errorf("Al no ser el creador de esta rutina no se brinda permisos para dicha accion")
+	}
+	routineObjectID := utils.GetObjectIDFromStringID(exerciseMod.RoutineID)
+
+	exerciseDB, err := service.ExcerciseRepository.GetExcerciseByID(exerciseMod.ExcerciseID)
 	if err != nil {
 		return nil, fmt.Errorf("error al obtener el ejercicio a modificar: %w", err)
 	}
 	if exerciseDB.ID.IsZero() {
 		return nil, fmt.Errorf("no existe ningún ejercicio con ese ID")
 	}
-	exerciseObjectID := utils.GetObjectIDFromStringID(exerciseId)
+	exerciseObjectID := utils.GetObjectIDFromStringID(exerciseMod.ExcerciseID)
 
 	//lógica de modificación
-	exerciseModel := dto.GetModelExerciseInRoutineDTO(exerciseMod)
+	exerciseModel := dto.GetModelFromExerciseInRoutineModifyDTO(exerciseMod)
 	result, err := service.RoutineRepository.UpdateExerciseInRoutine(routineObjectID, exerciseObjectID, exerciseModel)
 	if err != nil {
 		return nil, fmt.Errorf("error al modificar el ejercicio de la rutina: %w", err)
@@ -282,7 +293,7 @@ func (service *RoutineService) UpdateExerciseInRoutine(routineID string, exercis
 	}
 
 	//buscamos rutina para devolver
-	updatedRoutineDB, err := service.RoutineRepository.GetRoutineByID(routineID)
+	updatedRoutineDB, err := service.RoutineRepository.GetRoutineByID(exerciseMod.RoutineID)
 	if err != nil {
 		return nil, fmt.Errorf("error al obtener la rutina modificada en RoutineService.UpdateExerciseInRoutine(): %v", err)
 	}
@@ -292,7 +303,7 @@ func (service *RoutineService) UpdateExerciseInRoutine(routineID string, exercis
 	return dto.NewRoutineResponseDTO(*updatedRoutineDB), nil
 }
 
-func (service *RoutineService) DeleteRoutine(id string) (bool, error) {
+func (service *RoutineService) DeleteRoutine(id string, idEditor string) (bool, error) {
 	//validacion de existencia
 	exist, err := service.RoutineRepository.GetRoutineByID(id)
 	if err != nil {
@@ -300,6 +311,11 @@ func (service *RoutineService) DeleteRoutine(id string) (bool, error) {
 	}
 	if exist.ID.IsZero() {
 		return false, fmt.Errorf("no existe ninguna rutina con ese ID")
+	}
+	idCreator := utils.GetStringIDFromObjectID(exist.CreatorUserID)
+
+	if idCreator != idEditor {
+		return false, fmt.Errorf("Al no ser el creador de esta rutina no se brinda permisos para dicha accion")
 	}
 
 	result, err := service.RoutineRepository.DeleteRoutine(id)
@@ -309,5 +325,5 @@ func (service *RoutineService) DeleteRoutine(id string) (bool, error) {
 	if result.DeletedCount == 0 {
 		return false, fmt.Errorf("no se eliminó ninguna rutina")
 	}
-	return false, nil
+	return true, nil
 }

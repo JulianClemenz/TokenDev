@@ -14,6 +14,7 @@ type WorkoutRepositoryInterface interface {
 	PostWorkout(workout models.Workout) (*mongo.InsertOneResult, error)
 	GetWorkouts() ([]models.Workout, error)
 	GetWorkoutByID(id string) (models.Workout, error)
+	GetWorkoutsByUserID(userID string) ([]models.Workout, error)
 	PutWorkout(workout models.Workout) (*mongo.UpdateResult, error)
 	DeleteWorkout(id string) (*mongo.DeleteResult, error)
 }
@@ -92,4 +93,27 @@ func (repository WorkoutRepository) DeleteWorkout(id string) (*mongo.DeleteResul
 		return result, fmt.Errorf("error al eliminar el workout en WorkoutRepository.DeleteWorkout(): %v", err)
 	}
 	return result, nil
+}
+
+func (repository WorkoutRepository) GetWorkoutsByUserID(userID string) ([]models.Workout, error) {
+	collection := repository.db.GetClient().Database("AppFitness").Collection("workouts")
+	userObjectID := utils.GetObjectIDFromStringID(userID)
+	filter := bson.M{"user_id": userObjectID}
+
+	result, err := collection.Find(context.TODO(), filter)
+	if err != nil {
+		return nil, fmt.Errorf("error al ejecutar la consulta Find() en WorkoutRepository.GetWorkoutsByUserID(): %v", err)
+	}
+	defer result.Close(context.TODO())
+
+	var workouts []models.Workout
+	for result.Next(context.Background()) {
+		var workout models.Workout
+		err := result.Decode(&workout)
+		if err != nil {
+			return nil, fmt.Errorf("error al decodificar el workout en WorkoutRepository.GetWorkoutsByUserID(): %v", err)
+		}
+		workouts = append(workouts, workout)
+	}
+	return workouts, nil
 }
