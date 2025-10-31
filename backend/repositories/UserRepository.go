@@ -17,6 +17,7 @@ import (
 type UserRepositoryInterface interface { //contrato que define metodos para manejar usuarios
 	GetUsers() ([]models.User, error)
 	GetUsersByID(id string) (models.User, error)
+	GetUserByEmail(email string) (models.User, error)
 	PostUser(user models.User) (*mongo.InsertOneResult, error)
 	PutUser(user models.User) (*models.User, error)
 	UpdateNewPassword(dto dto.PasswordChange, id string) (modified int64, err error)
