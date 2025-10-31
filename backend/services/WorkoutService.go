@@ -2,8 +2,10 @@ package services
 
 import (
 	"AppFitness/dto"
+	"AppFitness/models"
 	"AppFitness/repositories"
 	"fmt"
+	"sort"
 	"time"
 )
 
@@ -11,6 +13,8 @@ type WorkoutInterface interface {
 	PostWorkout(*dto.WorkoutRegisterDTO) (*dto.WorkoutResponseDTO, error)
 	GetWorkouts(*dto.WorkoutRegisterDTO) ([]*dto.WorkoutResponseDTO, error)
 	GetWorkoutByID(id string) (*dto.WorkoutResponseDTO, error)
+	DeleteWorkout(id string) error
+	GetWorkoutStats(userID string) (*dto.WorkoutStatsDTO, error)
 }
 
 type WorkoutService struct {
@@ -34,8 +38,9 @@ func (ws WorkoutService) PostWorkout(workoutDTO dto.WorkoutRegisterDTO /*UserID 
 		return nil, fmt.Errorf("rutina no encontrada")
 	}
 
-	workoutModel := dto.GetModelWorkoutRegisterDTO(workoutDTO)
+	workoutModel := dto.GetModelWorkoutRegisterDTO(&workoutDTO)
 	workoutModel.Date = time.Now()
+	workoutModel.RoutineName = result.Name
 
 	insertResult, err := ws.WorkoutRepository.PostWorkout(workoutModel)
 	if err != nil {
@@ -102,6 +107,128 @@ func (ws WorkoutService) GetWorkoutByID(id string) (*dto.WorkoutResponseDTO, err
 		return nil, fmt.Errorf("usuario no encontrado")
 	}
 
-	//obtener workout por id
+	//obtener workout por id
+	workoutModel, err := ws.WorkoutRepository.GetWorkoutByID(id)
+	if err != nil {
+		return nil, fmt.Errorf("error al obtener workout: %w", err)
+	}
+	if workoutModel.ID.IsZero() {
+		return nil, fmt.Errorf("workout no encontrado")
+	}
+	workoutDTO := dto.NewWorkoutResponseDTO(workoutModel)
 
+	return workoutDTO, nil
+}
+
+func (ws WorkoutService) DeleteWorkout(id string) error {
+	//validacion de existencia de workout
+	workout, err := ws.WorkoutRepository.GetWorkoutByID(id)
+	if err != nil {
+		return fmt.Errorf("error al obtener workout: %w", err)
+	}
+	if workout.ID.IsZero() {
+		return fmt.Errorf("workout no encontrado")
+	}
+	//eliminar workout
+	result, err := ws.WorkoutRepository.DeleteWorkout(id)
+	if err != nil {
+		return fmt.Errorf("error al eliminar workout: %w", err)
+	}
+	if result.DeletedCount == 0 {
+		return fmt.Errorf("no se pudo eliminar el workout")
+	}
+	return nil
+}
+
+func (ws WorkoutService) GetWorkoutStats(userID string) (*dto.WorkoutStatsDTO, error) {
+
+	//validacion de existencia de user
+	userModel, err := ws.UserRepository.GetUsersByID(userID)
+	if err != nil {
+		return nil, fmt.Errorf("Error al recuperar usuario")
+	}
+	if userModel.ID.IsZero() {
+		return nil, fmt.Errorf("No se encontro user")
+	}
+
+	//logica
+	workoutsUser, err := ws.WorkoutRepository.GetWorkoutsByUserID(userID) //lista de workouts del user
+	if err != nil {
+		return nil, fmt.Errorf("Error al obtener workouts")
+	}
+	if len(workoutsUser) == 0 {
+		return nil, fmt.Errorf("Error, lista de workouts de user vacia")
+	}
+	if len(workoutsUser) == 1 {
+		return nil, fmt.Errorf("No se pueden calcular estadisticas, solo hay un workout")
+	}
+
+	// TotalWorkous
+	var status dto.WorkoutStatsDTO
+	status.TotalWorkouts = len(workoutsUser)
+
+	//WeeklyFrequency (logica: (cantidad de dias entre el primer y el ult workots - 1) / cantidad de entrenamientos)
+	sort.Slice(workoutsUser, func(i, j int) bool { //esta estructura ordena ascendentemente los workouts por fecha de creacion
+		return workoutsUser[i].Date.Before(workoutsUser[j].Date)
+	})
+
+	var primerWorkout models.Workout
+	var ultWorkout models.Workout
+
+	for i, workout := range workoutsUser {
+		if i == 0 {
+			primerWorkout = workout //obtenemos primer workout
+		}
+		ultWorkout = workout //obtenemos ultimo workout
+	}
+
+	dayDifference := ultWorkout.Date.Sub(primerWorkout.Date).Hours() / 24 //calculamos dias de diferencia
+	frequency := (dayDifference - 1) / float64(status.TotalWorkouts)      //calculamos la frecuencia
+	status.WeeklyFrequency = frequency
+
+	//MostUsedRoutines (ranking de rutinas mas usadas)
+	counts := make(map[string]int, len(workoutsUser)) //agrupa
+	for _, w := range workoutsUser {
+		counts[w.RoutineName]++ //suma en el map
+	}
+
+	//mapear a dto
+	out := make([]dto.RoutineUsageDTO, 0, len(counts))
+	for name, c := range counts {
+		out = append(out, dto.RoutineUsageDTO{
+			RoutineName: name,
+			Count:       c,
+		})
+	}
+}
+
+func BuildRoutineUsageByName(workouts *[]models.Workout) []dto.RoutineUsageDTO {
+
+	// 1) Crear mapa nombre → cantidad
+	counts := make(map[string]int, len(workouts))
+	for _, w := range workouts {
+		if w.RoutineName == "" {
+			continue // opcional: ignorar sin nombre
+		}
+		counts[w.RoutineName]++
+	}
+
+	// 2) Pasar a slice
+	out := make([]RoutineUsageDTO, 0, len(counts))
+	for name, c := range counts {
+		out = append(out, RoutineUsageDTO{
+			RoutineName: name,
+			Count:       c,
+		})
+	}
+
+	// 3) Ordenar: más usados primero, luego alfabéticamente
+	sort.Slice(out, func(i, j int) bool {
+		if out[i].Count == out[j].Count {
+			return out[i].RoutineName < out[j].RoutineName
+		}
+		return out[i].Count > out[j].Count
+	})
+
+	return out
 }
