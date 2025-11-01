@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"sort"
 	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type WorkoutInterface interface {
@@ -53,7 +55,10 @@ func (ws WorkoutService) PostWorkout(workoutDTO dto.WorkoutRegisterDTO /*UserID 
 	}
 
 	//recuperar workout creado
-	createdWorkout, err := ws.WorkoutRepository.GetWorkoutByID(insertResult.InsertedID.(string))
+	//createdWorkout, err := ws.WorkoutRepository.GetWorkoutByID(insertResult.InsertedID.(string))  este era el original, gemini me dijo que no era correcto y se cambio por las dos lineas de abajo
+	insertedID := insertResult.InsertedID.(primitive.ObjectID)
+	createdWorkout, err := ws.WorkoutRepository.GetWorkoutByID(insertedID.Hex())
+
 	if err != nil {
 		return nil, fmt.Errorf("error al obtener el workout creado: %w", err)
 	}
@@ -98,27 +103,17 @@ func (ws WorkoutService) GetWorkouts(workoutDTO dto.WorkoutRegisterDTO /*UserID 
 }
 
 // GetWorkoutByID obtiene un workout por su ID
-func (ws WorkoutService) GetWorkoutByID(id string) (*dto.WorkoutResponseDTO, error) {
-
-	//validacion de existencia de user
-	user, err := ws.UserRepository.GetUsersByID(id)
-	if err != nil {
-		return nil, fmt.Errorf("error al obtener usuario: %w", err)
-	}
-	if user.ID.IsZero() {
-		return nil, fmt.Errorf("usuario no encontrado")
-	}
-
+func (ws WorkoutService) GetWorkoutByID(workoutID string) (*dto.WorkoutResponseDTO, error) {
 	//obtener workout por id
-	workoutModel, err := ws.WorkoutRepository.GetWorkoutByID(id)
+	workoutModel, err := ws.WorkoutRepository.GetWorkoutByID(workoutID)
 	if err != nil {
 		return nil, fmt.Errorf("error al obtener workout: %w", err)
 	}
 	if workoutModel.ID.IsZero() {
 		return nil, fmt.Errorf("workout no encontrado")
 	}
+	// (Opcional: aquí podrías añadir una validación para ver si el usuario logueado es el dueño)
 	workoutDTO := dto.NewWorkoutResponseDTO(workoutModel)
-
 	return workoutDTO, nil
 }
 
