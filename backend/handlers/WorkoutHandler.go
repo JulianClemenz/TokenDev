@@ -27,7 +27,7 @@ func (h *WorkoutHandler) PostWorkout(c *gin.Context) {
 	}
 
 	idRoutine := c.Param("id_routine")
-	var newWorkout *dto.WorkoutRegisterDTO
+	newWorkout := &dto.WorkoutRegisterDTO{}
 
 	newWorkout.RoutineID = idRoutine
 	newWorkout.UserID = idEditor.(string)
@@ -64,7 +64,7 @@ func (h *WorkoutHandler) GetWorkouts(c *gin.Context) {
 
 	idRoutine := c.Param("id_routine")
 
-	var get *dto.WorkoutRegisterDTO
+	get := &dto.WorkoutRegisterDTO{}
 	get.RoutineID = idRoutine
 	get.UserID = idEditor.(string)
 
@@ -107,7 +107,13 @@ func (h *WorkoutHandler) GetWorkoutByID(c *gin.Context) {
 		return
 	}
 
-	result, err := h.WorkoutService.GetWorkoutByID(idUser)
+	idWork := c.Param("id")
+	if strings.TrimSpace(idWork) == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Se requiere id de workout"})
+		return
+	}
+
+	result, err := h.WorkoutService.GetWorkoutByID(idWork, idUser)
 	if err != nil {
 		msg := err.Error()
 		switch {

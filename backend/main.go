@@ -91,7 +91,7 @@ func main() {
 			adminExercise.POST("/", exerciseHandler.PostExcercise)  // Alta
 			adminExercise.PUT("/:id", exerciseHandler.PutExcercise) // Edición
 			// TODO: Necesitas implementar el handler para DeleteExcercise
-			// adminExercise.DELETE("/:id", exerciseHandler.DeleteExcercise)//////////////ATENCION
+			adminExercise.DELETE("/:id", exerciseHandler.DeleteExcercise)
 		}
 	}
 

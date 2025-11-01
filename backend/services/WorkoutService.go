@@ -4,6 +4,7 @@ import (
 	"AppFitness/dto"
 	"AppFitness/models"
 	"AppFitness/repositories"
+	"AppFitness/utils"
 	"fmt"
 	"sort"
 	"time"
@@ -14,7 +15,7 @@ import (
 type WorkoutInterface interface {
 	PostWorkout(*dto.WorkoutRegisterDTO) (*dto.WorkoutResponseDTO, error)
 	GetWorkouts(*dto.WorkoutRegisterDTO) ([]*dto.WorkoutResponseDTO, error)
-	GetWorkoutByID(id string) (*dto.WorkoutResponseDTO, error)
+	GetWorkoutByID(workoutID string, userID string) (*dto.WorkoutResponseDTO, error)
 	DeleteWorkout(dto.WorkoutDeleteDTO) error
 	GetWorkoutStats(userID string) (*dto.WorkoutStatsDTO, error)
 }
@@ -103,7 +104,7 @@ func (ws WorkoutService) GetWorkouts(workoutDTO *dto.WorkoutRegisterDTO /*UserID
 }
 
 // GetWorkoutByID obtiene un workout por su ID
-func (ws WorkoutService) GetWorkoutByID(workoutID string) (*dto.WorkoutResponseDTO, error) {
+func (ws WorkoutService) GetWorkoutByID(workoutID string, userID string) (*dto.WorkoutResponseDTO, error) {
 	//obtener workout por id
 	workoutModel, err := ws.WorkoutRepository.GetWorkoutByID(workoutID)
 	if err != nil {
@@ -113,6 +114,11 @@ func (ws WorkoutService) GetWorkoutByID(workoutID string) (*dto.WorkoutResponseD
 		return nil, fmt.Errorf("workout no encontrado")
 	}
 	// (Opcional: aquí podrías añadir una validación para ver si el usuario logueado es el dueño)
+	userIDconvert := utils.GetStringIDFromObjectID(workoutModel.UserID)
+	if userIDconvert != userID {
+		return nil, fmt.Errorf("el usuario no tiene permiso para acceder a workouts")
+	}
+
 	workoutDTO := dto.NewWorkoutResponseDTO(workoutModel)
 	return workoutDTO, nil
 }

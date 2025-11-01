@@ -142,12 +142,20 @@ func (h *ExerciseHandler) PostExcercise(c *gin.Context) {
 }
 
 func (h *ExerciseHandler) PutExcercise(c *gin.Context) {
+
+	id := c.Param("id")
+	if id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "el id del ejercico es requerido en la url"})
+	}
+
 	var exercise dto.ExcerciseModifyDTO
 
 	if err := c.ShouldBindJSON(&exercise); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()}) //400
 		return
 	}
+	exercise.ID = id
+
 	res, err := h.ExerciseService.PutExcercise(&exercise)
 	if err != nil {
 		msg := err.Error()
@@ -180,4 +188,32 @@ func (h *ExerciseHandler) PutExcercise(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, res)
+}
+
+func (h *ExerciseHandler) DeleteExcercise(c *gin.Context) {
+	_, exist := c.Get("user_id")
+	if !exist {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Usuario no autenticado"})
+		return
+	}
+
+	idExcercise := c.Param("id")
+	if strings.TrimSpace(idExcercise) == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Se requiere id de excercise"})
+		return
+	}
+
+	deleted, err := h.ExerciseService.DeleteExcercise(idExcercise)
+	if err != nil {
+		// ... (Maneja los errores como en tus otros handlers, ej. 404 si no existe, 500 si falla)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if !deleted {
+		c.JSON(http.StatusNotFound, gin.H{"error": "No se pudo eliminar el ejercicio o no fue encontrado"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Ejercicio eliminado correctamente"})
 }
