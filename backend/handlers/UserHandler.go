@@ -45,7 +45,7 @@ func (h *UserHandler) GetUserByID(c *gin.Context) {
 	id := c.Param("id")
 	user, err := h.userService.GetUserByID(id)
 	if err != nil {
-		if strings.Contains(err.Error(), "no se encontro") {
+		if strings.Contains(err.Error(), "no se encontró") {
 			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()}) //Error 404
 			return
 		}

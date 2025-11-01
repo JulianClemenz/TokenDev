@@ -110,8 +110,7 @@ func main() {
 
 		// Manejo de ejercicios dentro de una rutina
 		routineRoutes.POST("/:id/exercises", routineHandler.AddExcerciseToRoutine)
-		routineRoutes.PUT("/:routine_id/exercises/:exercise_id", routineHandler.UpdateExerciseInRoutine)
-		// handler espera un DTO en el body, así que no usamos params
+		routineRoutes.PUT("/:id/exercises/:exercise_id", routineHandler.UpdateExerciseInRoutine) // handler espera un DTO en el body, así que no usamos params
 		routineRoutes.DELETE("/exercises", routineHandler.RemoveExerciseFromRoutine)
 	}
 
