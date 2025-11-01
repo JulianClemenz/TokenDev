@@ -18,7 +18,7 @@ type ExcerciseRepositoryInterface interface {
 	PutExcercise(excercise models.Excercise) (*mongo.UpdateResult, error)
 	DeleteExcercise(id string) (*mongo.DeleteResult, error)
 	ExistByName(name string) (bool, error)
-	GetByFilters(filterDTO dto.ExerciseFilterDTO) ([]models.Excercise, error)
+	GetByFilters(filterDTO dto.ExerciseFilterDTO) ([]*models.Excercise, error)
 }
 
 type ExcerciseRepository struct { //campo para la conexion a la base de datos
@@ -88,6 +88,7 @@ func (repository ExcerciseRepository) PutExcercise(excercise models.Excercise) (
 		"example":           excercise.Example,
 		"instructions":      excercise.Instructions,
 		"edition_date":      excercise.EditionDate,
+		"difficult_level":   excercise.DifficultLevel,
 	}}
 
 	result, err := collection.UpdateOne(context.TODO(), filtro, entity)

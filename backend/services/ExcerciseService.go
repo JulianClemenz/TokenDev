@@ -141,7 +141,7 @@ func (service *ExcerciseService) GetByFilters(filterDTO dto.ExerciseFilterDTO) (
 
 	var excercises []*dto.ExcerciseResponseDTO
 	for _, excerciseDB := range excercisesDB {
-		excercise := dto.NewExcerciseResponseDTO(excerciseDB)
+		excercise := dto.NewExcerciseResponseDTO(*excerciseDB)
 		excercises = append(excercises, excercise)
 	}
 	return excercises, nil

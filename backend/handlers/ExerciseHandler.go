@@ -10,10 +10,10 @@ import (
 )
 
 type ExerciseHandler struct {
-	ExerciseService services.ExcerciseService
+	ExerciseService services.ExcerciseInterface
 }
 
-func NewExerciseHandler(exerciseService services.ExcerciseService) *ExerciseHandler {
+func NewExerciseHandler(exerciseService services.ExcerciseInterface) *ExerciseHandler {
 	return &ExerciseHandler{
 		ExerciseService: exerciseService,
 	}

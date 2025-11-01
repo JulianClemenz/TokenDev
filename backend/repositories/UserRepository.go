@@ -19,9 +19,9 @@ type UserRepositoryInterface interface { //contrato que define metodos para mane
 	GetUsersByID(id string) (models.User, error)
 	GetUserByEmail(email string) (models.User, error)
 	PostUser(user models.User) (*mongo.InsertOneResult, error)
-	PutUser(user models.User) (*models.User, error)
+	PutUser(user models.User) (*mongo.UpdateResult, error)
 	UpdateNewPassword(dto dto.PasswordChange, id string) (modified int64, err error)
-	DeleteUser(id int) error
+	DeleteUser(id string) (*mongo.DeleteResult, error)
 	ExistByEmail(email string) (bool, error)
 	ExistByUserName(userName string) (bool, error)
 	ExistByUserNameExceptID(id string, userName string) (bool, error)
@@ -110,7 +110,7 @@ func (repository UserRepository) PutUser(user models.User) (*mongo.UpdateResult,
 	filter := bson.M{"_id": user.ID}
 
 	entity := bson.M{"$set": bson.M{
-		"user_name":  user.Name,
+		"user_name":  user.UserName,
 		"email":      user.Email,
 		"role":       user.Role,
 		"weight":     user.Weight,
@@ -168,7 +168,7 @@ func (r UserRepository) ExistByUserNameExceptID(id string, userName string) (boo
 	collection := r.db.GetClient().Database("AppFitness").Collection("users")
 	filter := bson.M{
 		"user_name": userName,
-		"_id":       bson.M{"$ne": id},
+		"_id":       bson.M{"$ne": utils.GetObjectIDFromStringID(id)},
 	} //con este filtro buscamos si existe algun email pero q no se el de nuestro email
 
 	count, err := collection.CountDocuments(context.TODO(), filter)

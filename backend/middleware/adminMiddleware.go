@@ -11,7 +11,7 @@ import (
 func CheckAdmin() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		result, ok := c.Get("role")
-		if !ok || result.(string) != "Admin" {
+		if !ok || result.(string) != "admin" {
 			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "Acceso denegado: se requiere rol de administrador"})
 			return
 		}

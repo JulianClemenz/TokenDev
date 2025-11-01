@@ -33,7 +33,7 @@ func NewWorkoutService(workoutRepository repositories.WorkoutRepositoryInterface
 	}
 }
 
-func (ws WorkoutService) PostWorkout(workoutDTO dto.WorkoutRegisterDTO /*UserID se setea en handler*/) (*dto.WorkoutResponseDTO, error) {
+func (ws WorkoutService) PostWorkout(workoutDTO *dto.WorkoutRegisterDTO /*UserID se setea en handler*/) (*dto.WorkoutResponseDTO, error) {
 	result, err := ws.RoutineRepository.GetRoutineByID(workoutDTO.RoutineID)
 	if err != nil {
 		return nil, fmt.Errorf("rutina no encontrada: %w", err)
@@ -42,7 +42,7 @@ func (ws WorkoutService) PostWorkout(workoutDTO dto.WorkoutRegisterDTO /*UserID 
 		return nil, fmt.Errorf("rutina no encontrada")
 	}
 
-	workoutModel := dto.GetModelWorkoutRegisterDTO(&workoutDTO)
+	workoutModel := dto.GetModelWorkoutRegisterDTO(workoutDTO)
 	workoutModel.Date = time.Now()
 	workoutModel.RoutineName = result.Name
 
@@ -73,7 +73,7 @@ func (ws WorkoutService) PostWorkout(workoutDTO dto.WorkoutRegisterDTO /*UserID 
 }
 
 // GetWorkouts obtiene todos los workouts de un usuario específico
-func (ws WorkoutService) GetWorkouts(workoutDTO dto.WorkoutRegisterDTO /*UserID se setea en handler*/) ([]*dto.WorkoutResponseDTO, error) {
+func (ws WorkoutService) GetWorkouts(workoutDTO *dto.WorkoutRegisterDTO /*UserID se setea en handler*/) ([]*dto.WorkoutResponseDTO, error) {
 
 	//validar existencia de user
 	user, err := ws.UserRepository.GetUsersByID(workoutDTO.UserID)

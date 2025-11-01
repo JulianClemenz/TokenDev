@@ -10,10 +10,10 @@ import (
 )
 
 type RoutineHandler struct {
-	RoutineService services.RoutineService
+	RoutineService services.RoutineInterface
 }
 
-func NewRoutineHandler(routineService services.RoutineService) *RoutineHandler {
+func NewRoutineHandler(routineService services.RoutineInterface) *RoutineHandler {
 	return &RoutineHandler{
 		RoutineService: routineService,
 	}

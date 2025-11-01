@@ -12,7 +12,7 @@ type Excercise struct {
 	Description     string             `bson:"description" json:"description" binding:"required"`
 	CreatorUserID   primitive.ObjectID `bson:"creator_user_id,omitempty" json:"creator_user_id" binding:"required"` //int or primitive.ObjectID?
 	Category        CategoryLevel      `bson:"category" json:"category" binding:"required, oneof=strength cardio flexibility balance"`
-	MainMuscleGroup string             `bson:"main_muscle_group" json:"main_mouscle_group" binding:"required"`
+	MainMuscleGroup string             `bson:"main_muscle_group" json:"main_muscle_group" binding:"required"`
 	DifficultLevel  string             `bson:"difficult_level" json:"difficult_level" binding:"required"` //string or enum?
 	Example         string             `bson:"example" json:"example" binding:"required"`                 //url of video
 	Instructions    string             `bson:"instructions" json:"instructions" binding:"required"`

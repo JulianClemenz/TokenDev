@@ -34,14 +34,14 @@ func (s *AuthService) Login(loginDTO *dto.LoginRequestDTO) (*dto.LoginResponseDT
 	user, err := s.UserRepo.GetUserByEmail(loginDTO.Email)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			return nil, fmt.Errorf("credenciales invalidas: usuario no encontrado")
+			return nil, fmt.Errorf("credenciales inválidas: usuario no encontrado")
 		}
 		return nil, fmt.Errorf("error al buscar usuario: %w", &err)
 	}
 
 	isValidPassword := utils.CheckPasswordHash(loginDTO.Password, user.Password)
 	if !isValidPassword {
-		return nil, fmt.Errorf("credenciales invalidas: contraseña incorrecta")
+		return nil, fmt.Errorf("credenciales inválidas: contraseña incorrecta")
 	}
 
 	accessToken, err := utils.GenerateToken(user.ID, user.Email, string(user.Role))

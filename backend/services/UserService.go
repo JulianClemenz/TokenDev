@@ -98,7 +98,7 @@ func (services *UserService) GetUsers() ([]*dto.UserResponseDTO, error) {
 	return users, nil
 }
 
-func (services *UserService) GetUSersByID(id string) (*dto.UserResponseDTO, error) {
+func (services *UserService) GetUserByID(id string) (*dto.UserResponseDTO, error) {
 	userDB, err := services.UserRepository.GetUsersByID(id)
 
 	if err != nil {

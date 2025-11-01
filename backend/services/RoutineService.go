@@ -17,7 +17,7 @@ type RoutineInterface interface {
 	GetRoutineByID(id string) (*dto.RoutineResponseDTO, error)
 	PutRoutine(modify dto.RoutineModifyDTO) (*dto.RoutineResponseDTO, error)
 	AddExcerciseToRoutine(routineID string, exercise *dto.ExcerciseInRoutineDTO, idEditor string) (*dto.RoutineResponseDTO, error)
-	RemoveExcerciseFromRoutine(remove dto.RoutineRemoveDTO) (*dto.RoutineResponseDTO, error)
+	RemoveExcerciseFromRoutine(idEditor string, remove dto.RoutineRemoveDTO) (*dto.RoutineResponseDTO, error)
 	UpdateExerciseInRoutine(idEditor string, exerciseMod *dto.ExcerciseInRoutineModifyDTO) (*dto.RoutineResponseDTO, error)
 	DeleteRoutine(id string, idEditor string) (bool, error)
 }

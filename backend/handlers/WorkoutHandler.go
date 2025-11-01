@@ -10,10 +10,10 @@ import (
 )
 
 type WorkoutHandler struct {
-	WorkoutService services.WorkoutService
+	WorkoutService services.WorkoutInterface
 }
 
-func NewWorkoutHadler(workoutService services.WorkoutService) *WorkoutHandler {
+func NewWorkoutHadler(workoutService services.WorkoutInterface) *WorkoutHandler {
 	return &WorkoutHandler{
 		WorkoutService: workoutService,
 	}
@@ -27,7 +27,7 @@ func (h *WorkoutHandler) PostWorkout(c *gin.Context) {
 	}
 
 	idRoutine := c.Param("id_routine")
-	var newWorkout dto.WorkoutRegisterDTO
+	var newWorkout *dto.WorkoutRegisterDTO
 
 	newWorkout.RoutineID = idRoutine
 	newWorkout.UserID = idEditor.(string)
@@ -64,7 +64,7 @@ func (h *WorkoutHandler) GetWorkouts(c *gin.Context) {
 
 	idRoutine := c.Param("id_routine")
 
-	var get dto.WorkoutRegisterDTO
+	var get *dto.WorkoutRegisterDTO
 	get.RoutineID = idRoutine
 	get.UserID = idEditor.(string)
 

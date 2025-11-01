@@ -74,7 +74,7 @@ type RoutineModifyDTO struct {
 
 type RoutineRemoveDTO struct {
 	IDExercise string `json:"exercise_id" binding:"required"`
-	IDRoutine  string `json:"reoutine_id" binding:"required"`
+	IDRoutine  string `json:"routine_id" binding:"required"`
 }
 
 type ExcerciseInRoutineModifyDTO struct {

@@ -41,7 +41,7 @@ type User struct {
 	Weight          float32            `bson:"weight" json:"weight"`
 	Height          float32            `bson:"height" json:"height"`
 	Experience      ExperienceLevel    `bson:"experience" json:"experience" binding:"required, oneof=beginner intermediate advanced"`
-	Objetive        ObjetiveLevel      `bson:"objetive" json:"objetive" binding:"required, oneof=lose_weight gain_weight maintaim"`
+	Objetive        ObjetiveLevel      `bson:"objetive" json:"objetive" binding:"required, oneof=lose_weight gain_weight maintain"`
 	EditionDate     time.Time          `bson:"edition_date" json:"edition_date"`
 	EliminationDate time.Time          `bson:"elimination_date" json:"elimination_date"`
 	CreationDate    time.Time          `bson:"creation_date" json:"creation_date"`
