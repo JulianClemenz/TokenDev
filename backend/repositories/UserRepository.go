@@ -188,10 +188,14 @@ func (r *UserRepository) UpdateNewPassword(dto dto.PasswordChange, id string) (m
 		return 0, fmt.Errorf("ID inválido")
 	}
 
+	filter := bson.M{"_id": ID}
+
+	update := bson.M{"$set": bson.M{"password": dto.NewPassword}}
+
 	res, err := collection.UpdateOne(
 		context.TODO(),
-		bson.M{"_id": ID, "password": dto.CurrentPassword},
-		bson.M{"$set": bson.M{"password": dto.NewPassword}},
+		filter, // Usamos el filtro simplificado
+		update,
 	)
 	if err != nil {
 		return 0, err

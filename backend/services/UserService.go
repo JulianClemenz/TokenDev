@@ -171,6 +171,7 @@ func (s *UserService) PasswordModify(dto dto.PasswordChange, id string) (bool, e
 	if newPassword != confirm {
 		return false, fmt.Errorf("la nueva contraseña y su confirmacion no se iguales")
 	}
+
 	// Hashear nueva
 	hashed, err := utils.HashPassword(newPassword)
 	if err != nil {
@@ -178,7 +179,6 @@ func (s *UserService) PasswordModify(dto dto.PasswordChange, id string) (bool, e
 	}
 
 	dto.NewPassword = hashed
-	dto.CurrentPassword = userDB.Password
 
 	modified, err := s.UserRepository.UpdateNewPassword(dto, id)
 	if err != nil {
