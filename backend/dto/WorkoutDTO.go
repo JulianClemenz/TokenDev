@@ -29,7 +29,6 @@ func GetModelWorkoutRegisterDTO(dto *WorkoutRegisterDTO) models.Workout {
 
 func NewWorkoutResponseDTO(workout models.Workout) *WorkoutResponseDTO {
 	return &WorkoutResponseDTO{
-		ID:          utils.GetStringIDFromObjectID(workout.ID),
 		UserID:      utils.GetStringIDFromObjectID(workout.UserID),
 		RoutineID:   utils.GetStringIDFromObjectID(workout.RoutineID),
 		RoutineName: workout.RoutineName,

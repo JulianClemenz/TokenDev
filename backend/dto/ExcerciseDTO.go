@@ -34,7 +34,6 @@ func GetModelExcerciseRegister(excercise *ExcerciseRegisterDTO) *models.Excercis
 }
 
 type ExcerciseResponseDTO struct {
-	ID              string
 	Name            string
 	Description     string
 	CreatorUserID   string
@@ -50,7 +49,6 @@ type ExcerciseResponseDTO struct {
 
 func NewExcerciseResponseDTO(excercise models.Excercise) *ExcerciseResponseDTO {
 	return &ExcerciseResponseDTO{
-		ID:              utils.GetStringIDFromObjectID(excercise.ID),
 		Name:            excercise.Name,
 		Description:     excercise.Description,
 		CreatorUserID:   utils.GetStringIDFromObjectID(excercise.CreatorUserID),

@@ -7,7 +7,7 @@ import (
 )
 
 type RoutineRegisterDTO struct {
-	Name          string
+	Name          string `json:"name"`
 	CreatorUserID string
 }
 type ExcerciseInRoutineDTO struct {
@@ -57,7 +57,6 @@ type RoutineResponseDTO struct {
 
 func NewRoutineResponseDTO(routine models.Routine) *RoutineResponseDTO {
 	return &RoutineResponseDTO{
-		ID:              utils.GetStringIDFromObjectID(routine.ID),
 		Name:            routine.Name,
 		CreatorUserID:   utils.GetStringIDFromObjectID(routine.CreatorUserID), //check
 		ExcerciseList:   newExcerciseInRoutineResponseDTO(routine.ExcerciseList),
@@ -69,7 +68,7 @@ func NewRoutineResponseDTO(routine models.Routine) *RoutineResponseDTO {
 
 type RoutineModifyDTO struct {
 	IDRoutine string
-	Name      string
+	Name      string `json:"name"`
 }
 
 type RoutineRemoveDTO struct {

@@ -7,17 +7,17 @@ import (
 )
 
 type UserRegisterDTO struct {
-	Name       string
-	LastName   string
-	UserName   string `json:"user_name" binding:"required,min=5"`
-	Email      string `json:"email" binding:"required,email"`
-	Password   string `json:"password" binding:"required,min=7"`
-	BirthDate  time.Time
-	Role       string
-	Weight     float32
-	Height     float32
-	Experience string
-	Objetive   string
+	Name       string    `json:"name"`
+	LastName   string    `json:"last_name"`
+	UserName   string    `json:"user_name" binding:"required,min=5"`
+	Email      string    `json:"email" binding:"required,email"`
+	Password   string    `json:"password" binding:"required,min=7"`
+	BirthDate  time.Time `json:"birth_date"`
+	Role       string    `json:"role"`
+	Weight     float32   `json:"weight"`
+	Height     float32   `json:"height"`
+	Experience string    `json:"experience"`
+	Objetive   string    `json:"objetive"`
 }
 
 func (user UserRegisterDTO) GetModelUserRegister() models.User {
@@ -37,7 +37,6 @@ func (user UserRegisterDTO) GetModelUserRegister() models.User {
 }
 
 type UserResponseDTO struct {
-	ID         string
 	Name       string
 	LastName   string
 	UserName   string
@@ -51,7 +50,6 @@ type UserResponseDTO struct {
 
 func NewUserResponseDTO(user models.User) *UserResponseDTO {
 	return &UserResponseDTO{
-		ID:         utils.GetStringIDFromObjectID(user.ID),
 		Name:       user.Name,
 		LastName:   user.LastName,
 		UserName:   user.UserName,
@@ -66,13 +64,13 @@ func NewUserResponseDTO(user models.User) *UserResponseDTO {
 
 type UserModifyDTO struct {
 	ID         string
-	UserName   string
-	Email      string `json:"email" binding:"required,email"`
-	Role       string
+	UserName   string  `json:"user_name"`
+	Email      string  `json:"email" binding:"required,email"`
+	Role       string  `json:"role"`
 	Weight     float32 `json:"weight" binding:"gte=0"`
 	Height     float32 `json:"height" binding:"gte=0"`
-	Experience string
-	Objetive   string
+	Experience string  `json:"experience"`
+	Objetive   string  `json:"objetive"`
 }
 
 func GetModelUserModify(user *UserModifyDTO) models.User {
