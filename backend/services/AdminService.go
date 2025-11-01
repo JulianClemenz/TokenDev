@@ -1,4 +1,4 @@
-package service
+package services
 
 import (
 	"AppFitness/dto"
@@ -10,7 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type AdminServiceInterface interface {
+type AdminInterface interface {
 	GetGlobalStats() ([]*dto.TopUsedExcerciseDTO, error)
 	GetLogs() ([]*dto.UserResponseDTO, int, error) //lista de users, cantidad
 }
@@ -87,4 +87,5 @@ func (a *AdminService) GetLogs() ([]*dto.UserResponseDTO, int, error) {
 	}
 
 	return usersResponse, len(usersResponse), nil
+
 }

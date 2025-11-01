@@ -140,8 +140,8 @@ func main() {
 	{
 		adminRoutes.GET("/users", userHandler.GetUsers) // Gestión de usuarios
 		// TODO: Implementar handlers para estadísticas globales
-		//adminRoutes.GET("/stats/users", ...)
-		//adminRoutes.GET("/stats/exercises", ...) ////////////////////////////////////ATENCION
+		adminRoutes.GET("/stats/users", handlers.AdminHandler.GetLogs())
+		adminRoutes.GET("/stats/exercises", handlers.AdminHandler.GetGlobalStats())
 	}
 
 	// 5. Iniciar Servidor
