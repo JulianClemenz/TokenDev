@@ -40,6 +40,7 @@ func main() {
 	exerciseService := services.NewExcerciseService(exerciseRepo)
 	routineService := services.NewRoutineService(routineRepo, exerciseRepo)
 	workoutService := services.NewWorkoutService(workoutRepo, routineRepo, userRepo)
+	adminService := services.NewAdminService(userRepo, exerciseRepo, routineRepo)
 
 	// --- Handlers ---
 	authHandler := handlers.NewAuthHandler(authService)
@@ -47,6 +48,7 @@ func main() {
 	exerciseHandler := handlers.NewExerciseHandler(exerciseService)
 	routineHandler := handlers.NewRoutineHandler(routineService)
 	workoutHandler := handlers.NewWorkoutHadler(workoutService)
+	adminHandler := handlers.NewAdminHandler(adminService)
 
 	router := gin.Default()
 
@@ -140,8 +142,8 @@ func main() {
 	{
 		adminRoutes.GET("/users", userHandler.GetUsers) // Gestión de usuarios
 		// TODO: Implementar handlers para estadísticas globales
-		adminRoutes.GET("/stats/users", handlers.AdminHandler.GetLogs())
-		adminRoutes.GET("/stats/exercises", handlers.AdminHandler.GetGlobalStats())
+		adminRoutes.GET("/stats/users", adminHandler.GetLogs)
+		adminRoutes.GET("/stats/exercises", adminHandler.GetGlobalStats)
 	}
 
 	// 5. Iniciar Servidor

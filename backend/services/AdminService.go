@@ -16,25 +16,28 @@ type AdminInterface interface {
 }
 
 type AdminService struct {
-	UserRepository      repositories.UserRepository
-	ExcerciseRepository repositories.ExcerciseRepository
-	Routinerepository   repositories.RoutineRepository
+	UserRepository      repositories.UserRepositoryInterface
+	ExcerciseRepository repositories.ExcerciseRepositoryInterface
+	RoutineRepository   repositories.RoutineRepositoryInterface
 }
 
-func NewAdminService(UserRepository repositories.UserRepository, ExcerciseRepository repositories.ExcerciseRepository) *AdminService {
+func NewAdminService(
+	userRepo repositories.UserRepositoryInterface, exerciseRepo repositories.ExcerciseRepositoryInterface, routineRepo repositories.RoutineRepositoryInterface) AdminInterface {
 	return &AdminService{
-		UserRepository:      UserRepository,
-		ExcerciseRepository: ExcerciseRepository,
+		UserRepository:      userRepo,
+		ExcerciseRepository: exerciseRepo,
+		RoutineRepository:   routineRepo,
 	}
 }
 
 func (a *AdminService) GetGlobalStats() ([]*dto.TopUsedExcerciseDTO, error) {
-	routinesDB, err := a.Routinerepository.GetRoutines()
+
+	routinesDB, err := a.RoutineRepository.GetRoutines()
 	if err != nil {
 		return nil, fmt.Errorf("error al recuperar rutinas")
 	}
 	if len(routinesDB) == 0 {
-		return []*dto.TopUsedExcerciseDTO{}, fmt.Errorf("vacio")
+		return []*dto.TopUsedExcerciseDTO{}, nil // o nil, nil
 	}
 	//recuperamos todos los exc
 	var excerciseList []primitive.ObjectID
@@ -78,7 +81,8 @@ func (a *AdminService) GetLogs() ([]*dto.UserResponseDTO, int, error) {
 		return nil, 0, fmt.Errorf("error al recuperar users")
 	}
 	if len(usersDB) == 0 {
-		return []*dto.UserResponseDTO{}, 0, fmt.Errorf("vacio")
+		// Devuelve vacío en lugar de error
+		return []*dto.UserResponseDTO{}, 0, nil
 	}
 
 	var usersResponse []*dto.UserResponseDTO
