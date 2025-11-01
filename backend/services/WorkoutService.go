@@ -14,7 +14,7 @@ import (
 
 type WorkoutInterface interface {
 	PostWorkout(*dto.WorkoutRegisterDTO) (*dto.WorkoutResponseDTO, error)
-	GetWorkouts(*dto.WorkoutRegisterDTO) ([]*dto.WorkoutResponseDTO, error)
+	GetWorkouts(idUser string) ([]*dto.WorkoutResponseDTO, error)
 	GetWorkoutByID(workoutID string, userID string) (*dto.WorkoutResponseDTO, error)
 	DeleteWorkout(dto.WorkoutDeleteDTO) error
 	GetWorkoutStats(userID string) (*dto.WorkoutStatsDTO, error)
@@ -74,10 +74,10 @@ func (ws WorkoutService) PostWorkout(workoutDTO *dto.WorkoutRegisterDTO /*UserID
 }
 
 // GetWorkouts obtiene todos los workouts de un usuario específico
-func (ws WorkoutService) GetWorkouts(workoutDTO *dto.WorkoutRegisterDTO /*UserID se setea en handler*/) ([]*dto.WorkoutResponseDTO, error) {
+func (ws WorkoutService) GetWorkouts(idUser string) ([]*dto.WorkoutResponseDTO, error) {
 
 	//validar existencia de user
-	user, err := ws.UserRepository.GetUsersByID(workoutDTO.UserID)
+	user, err := ws.UserRepository.GetUsersByID(idUser)
 	if err != nil {
 		return nil, fmt.Errorf("error al obtener usuario: %w", err)
 	}
@@ -86,7 +86,7 @@ func (ws WorkoutService) GetWorkouts(workoutDTO *dto.WorkoutRegisterDTO /*UserID
 	}
 
 	//obtener workouts del user
-	workoutsModel, err := ws.WorkoutRepository.GetWorkoutsByUserID(workoutDTO.UserID)
+	workoutsModel, err := ws.WorkoutRepository.GetWorkoutsByUserID(idUser)
 	if err != nil {
 		return nil, fmt.Errorf("error al obtener workouts: %w", err)
 	}

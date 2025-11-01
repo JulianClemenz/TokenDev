@@ -62,13 +62,7 @@ func (h *WorkoutHandler) GetWorkouts(c *gin.Context) {
 		return
 	}
 
-	idRoutine := c.Param("id_routine")
-
-	get := &dto.WorkoutRegisterDTO{}
-	get.RoutineID = idRoutine
-	get.UserID = idEditor.(string)
-
-	result, err := h.WorkoutService.GetWorkouts(get)
+	result, err := h.WorkoutService.GetWorkouts(idEditor.(string))
 	if err != nil {
 		msg := err.Error()
 		switch {
