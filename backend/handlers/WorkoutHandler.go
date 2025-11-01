@@ -178,3 +178,34 @@ func (h *WorkoutHandler) DeleteWorkout(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Workout eliminado correctamente"})
 }
+
+func (h *WorkoutHandler) GetWorkoutStats(c *gin.Context) {
+	idEditor, exist := c.Get("user_id")
+	if !exist {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Usuario no autenticado"})
+		return
+	}
+
+	result, err := h.WorkoutService.GetWorkoutStats(idEditor.(string))
+	if err != nil {
+		msg := err.Error()
+		switch {
+		case strings.Contains(msg, "No se encontro user"):
+			c.JSON(http.StatusNotFound, gin.H{"error": msg}) // 404
+			return
+
+		case strings.Contains(msg, "Error al recuperar usuario"),
+			strings.Contains(msg, "Error al obtener workouts"):
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "error interno al obtener estadísticas"}) // 500
+			return
+
+		default:
+			c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
+			return
+		}
+	}
+
+	// Nota: si el usuario tiene 0 o 1 workout, el service devuelve DTO vacío y err == nil → respondemos 200 OK igual.
+	c.JSON(http.StatusOK, result)
+
+}

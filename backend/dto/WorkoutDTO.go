@@ -53,3 +53,8 @@ type ProgressPointDTO struct {
 	Date  string
 	Count int
 }
+
+type WorkoutDeleteDTO struct {
+	RoutineID string
+	UserID    string
+}
