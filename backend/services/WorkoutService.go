@@ -23,9 +23,11 @@ type WorkoutService struct {
 	UserRepository    repositories.UserRepositoryInterface
 }
 
-func NewWorkoutService(workoutRepository repositories.WorkoutRepositoryInterface) *WorkoutService {
+func NewWorkoutService(workoutRepository repositories.WorkoutRepositoryInterface, routineRepository repositories.RoutineRepositoryInterface, userRepository repositories.UserRepositoryInterface) *WorkoutService {
 	return &WorkoutService{
 		WorkoutRepository: workoutRepository,
+		RoutineRepository: routineRepository,
+		UserRepository:    userRepository,
 	}
 }
 

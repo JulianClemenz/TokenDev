@@ -1,7 +1,6 @@
 package dto
 
 import (
-	"AppFitness/dto"
 	"AppFitness/models"
 	"AppFitness/utils"
 	"time"
@@ -76,7 +75,7 @@ type UserModifyDTO struct {
 	Objetive   string
 }
 
-func GetModelUserModify(user *dto.UserModifyDTO) models.User {
+func GetModelUserModify(user *UserModifyDTO) models.User {
 	return models.User{
 		ID:         utils.GetObjectIDFromStringID(user.ID),
 		UserName:   user.UserName,

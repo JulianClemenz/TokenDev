@@ -13,7 +13,7 @@ import (
 
 type ExcerciseInterface interface { //POST, PUT y DELETE son accesibles solo por admins (reciben actor)
 	PostExcercise(excercise *dto.ExcerciseRegisterDTO) (*dto.ExcerciseResponseDTO, error)
-	PutExcercise(excercise *dto.ExcerciseRegisterDTO) (*dto.ExcerciseResponseDTO, error)
+	PutExcercise(newData *dto.ExcerciseModifyDTO) (*dto.ExcerciseModifyResponseDTO, error)
 	DeleteExcercise(id string) (bool, error)
 	GetExcercises() ([]*dto.ExcerciseResponseDTO, error)
 	GetExcerciseByID(id string) (*dto.ExcerciseResponseDTO, error)

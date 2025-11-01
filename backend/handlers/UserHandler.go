@@ -56,12 +56,6 @@ func (h *UserHandler) GetUserByID(c *gin.Context) {
 }
 
 func (h *UserHandler) PostUser(c *gin.Context) {
-	_, exist := c.Get("user_id")
-	if !exist {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Usuario no autenticado"}) //esto ns si esta bien aca //401
-		return
-	}
-
 	var user dto.UserRegisterDTO
 	if err := c.ShouldBindJSON(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

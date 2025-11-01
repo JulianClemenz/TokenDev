@@ -4,8 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/golang-jwt/jwt"
-	jwt "github.com/golang-jwt/jwt/v5"
+	jwtv5 "github.com/golang-jwt/jwt/v5"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -15,7 +14,7 @@ type Claims struct {
 	UserID string `json:"user_id"`
 	Email  string `json:"email"`
 	Role   string `json:"role"`
-	jwt.RegisteredClaims
+	jwtv5.RegisteredClaims
 }
 
 func GenerateToken(userID primitive.ObjectID, email string, role string) (string, error) {
@@ -23,18 +22,20 @@ func GenerateToken(userID primitive.ObjectID, email string, role string) (string
 		UserID: userID.Hex(),
 		Email:  email,
 		Role:   role,
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
+		RegisteredClaims: jwtv5.RegisteredClaims{
+			ExpiresAt: jwtv5.NewNumericDate(time.Now().Add(24 * time.Hour)),
+			IssuedAt:  jwtv5.NewNumericDate(time.Now()),
 		},
 	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	token := jwtv5.NewWithClaims(jwtv5.SigningMethodHS256, claims)
 	return token.SignedString(jwtSecret)
 }
 
+// También deberás actualizar tu función ValidateToken
 func ValidateToken(tokenString string) (*Claims, error) {
-	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) { //por cada intento de acceso a una funcion privada de la app se llama a este metodo
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok { //con esta funcion nos aseguramos que el contenido del token este seguro, ya que se verifica que el mismo este firmado con algun metodo de HMAC y no haya sido alterado el header o el payload por algun usuario
+	// Usar el alias `jwtv5` en todas partes
+	token, err := jwtv5.ParseWithClaims(tokenString, &Claims{}, func(token *jwtv5.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwtv5.SigningMethodHMAC); !ok {
 			return nil, errors.New("")
 		}
 		return jwtSecret, nil
