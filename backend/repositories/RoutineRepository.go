@@ -178,7 +178,7 @@ func (repository RoutineRepository) DeleteExerciseToRutine(rutineID primitive.Ob
 	update := bson.M{
 		"$pull": bson.M{
 			"exercise_list": bson.M{
-				"exercise_id": exerciseID,
+				"excercise_id": exerciseID,
 			},
 		},
 	}
