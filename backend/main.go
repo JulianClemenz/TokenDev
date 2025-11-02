@@ -7,6 +7,7 @@ import (
 	"AppFitness/services"
 	"fmt"
 	"log"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -53,8 +54,25 @@ func main() {
 	router := gin.Default()
 
 	// Configurar archivos státic y templates
-	//router.Static("/static", "./static") // Para CSS, JS, imágenes
-	//router.LoadHTMLGlob("templates/*")   // Para renderizado HTML del lado del servidor
+	router.Static("/static", "./static") // Para CSS, JS, imágenes
+	router.LoadHTMLGlob("templates/*")   // Para renderizado HTML del lado del servidor
+
+	router.GET("/", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "index.html", nil)
+	})
+	router.GET("/login", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "login.html", nil)
+	})
+	router.GET("/register", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "register1.html", nil)
+	})
+	// (Agrega más rutas GET para tus otras páginas: /dashboard, /profile, etc.)
+	router.GET("/dashboard-user", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "user/dashboard.html", nil)
+	})
+	router.GET("/dashboard-admin", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "admin/dashboard.html", nil)
+	})
 
 	// Rutas Públicas (Autenticación y Registro)
 	// no requieren el middleware de autenticación
