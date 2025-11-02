@@ -40,7 +40,7 @@ func main() {
 	exerciseService := services.NewExcerciseService(exerciseRepo)
 	routineService := services.NewRoutineService(routineRepo, exerciseRepo)
 	workoutService := services.NewWorkoutService(workoutRepo, routineRepo, userRepo)
-	adminService := services.NewAdminService(userRepo, exerciseRepo, routineRepo)
+	adminService := services.NewAdminService(userRepo, exerciseRepo, routineRepo, sessionRepo)
 
 	// --- Handlers ---
 	authHandler := handlers.NewAuthHandler(authService)

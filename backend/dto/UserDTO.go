@@ -47,6 +47,7 @@ type UserResponseDTO struct {
 	Height     float32
 	Experience string
 	Objetive   string
+	IsActive   bool `json:"is_active"`
 }
 
 func NewUserResponseDTO(user models.User) *UserResponseDTO {

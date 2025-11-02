@@ -19,14 +19,16 @@ type AdminService struct {
 	UserRepository      repositories.UserRepositoryInterface
 	ExcerciseRepository repositories.ExcerciseRepositoryInterface
 	RoutineRepository   repositories.RoutineRepositoryInterface
+	SessionRepository   repositories.SessionRepositoryInterface
 }
 
 func NewAdminService(
-	userRepo repositories.UserRepositoryInterface, exerciseRepo repositories.ExcerciseRepositoryInterface, routineRepo repositories.RoutineRepositoryInterface) AdminInterface {
+	userRepo repositories.UserRepositoryInterface, exerciseRepo repositories.ExcerciseRepositoryInterface, routineRepo repositories.RoutineRepositoryInterface, sessionRepo repositories.SessionRepositoryInterface) AdminInterface {
 	return &AdminService{
 		UserRepository:      userRepo,
 		ExcerciseRepository: exerciseRepo,
 		RoutineRepository:   routineRepo,
+		SessionRepository:   sessionRepo,
 	}
 }
 
@@ -87,7 +89,16 @@ func (a *AdminService) GetLogs() ([]*dto.UserResponseDTO, int, error) {
 
 	var usersResponse []*dto.UserResponseDTO
 	for _, u := range usersDB {
-		usersResponse = append(usersResponse, dto.NewUserResponseDTO(u))
+		userDTO := dto.NewUserResponseDTO(u)
+		isActive, err := a.SessionRepository.IsUserActive(u.ID.Hex())
+		if err != nil {
+			// Si hay un error, inactivo por seguridad
+			userDTO.IsActive = false
+		} else {
+			userDTO.IsActive = isActive // si esta activo le ponemos true sino false
+		}
+
+		usersResponse = append(usersResponse, userDTO)
 	}
 
 	return usersResponse, len(usersResponse), nil

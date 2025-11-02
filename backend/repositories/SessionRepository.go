@@ -5,6 +5,7 @@ import (
 	"AppFitness/utils"
 	"context"
 	"fmt"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -16,6 +17,7 @@ type SessionRepositoryInterface interface {
 	GetSessionByID(id string) (models.Session, error)
 	PutSession(session models.Session) (*mongo.UpdateResult, error)
 	DeleteSession(id string) (*mongo.DeleteResult, error)
+	IsUserActive(userID string) (bool, error)
 }
 
 type SessionRepository struct {
@@ -102,4 +104,25 @@ func (repository SessionRepository) DeleteSession(id string) (*mongo.DeleteResul
 		return result, fmt.Errorf("error al eliminar la session en SessionRepository.DeleteSession(): %v", err)
 	}
 	return result, nil
+}
+
+func (repository SessionRepository) IsUserActive(userID string) (bool, error) {
+	collection := repository.db.GetClient().Database("AppFitness").Collection("sessions")
+	objectID, err := utils.GetObjectIDFromStringID(userID)
+	if err != nil {
+		return false, err // Error de formato de ID
+	}
+
+	filter := bson.M{
+		"user_id": objectID,
+		"estatus": true,
+		"expires": bson.M{"$gt": time.Now()}, // Que la sesión no esté expirada
+	}
+
+	count, err := collection.CountDocuments(context.TODO(), filter)
+	if err != nil {
+		return false, err
+	}
+
+	return count > 0, nil
 }
