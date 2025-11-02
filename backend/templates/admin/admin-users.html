@@ -1,99 +1,125 @@
 <!doctype html>
-<html lang="en">
-  <!--NavBar-->  
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>AppFitness</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-  </head>
-  <body>
-    <nav class="navbar navbar-expand-lg bg-body-tertiary">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="#">Golds Gym</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="#">Inicio</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="#">Ejercicios</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="#"><strong>Usuarios</strong></a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="#">Estadisticas Globales</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="#">Logs del Sistema</a>
-        </li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            Usuario
-          </a>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="#">Ver perfil</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="#">Cerrar sesion</a></li>
-          </ul>
-        </li>
-      </ul>
-      <form class="d-flex" role="search">
-        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"/>
-        <button class="btn btn-outline-success" type="submit">Search</button>
-      </form>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AppFitness - Admin | Usuarios</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+</head>
+
+<body>
+  <!-- NavBar -->
+  <nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="admin-dashboard.html">Golds Gym</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link" href="admin-dashboard.html">Inicio</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="admin-exercises.html">Ejercicios</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="admin-users.html"><strong>Usuarios</strong></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="admin-stats.html">Estadísticas Globales</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="admin-system-logs.html">Logs del Sistema</a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Usuario
+            </a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="../profile/profile.html">Ver perfil</a></li>
+              <li>
+                <hr class="dropdown-divider">
+              </li>
+              <li><a class="dropdown-item" href="#" onclick="logout()">Cerrar sesión</a></li>
+            </ul>
+          </li>
+        </ul>
+
+        <form class="d-flex" role="search">
+          <input class="form-control me-2" type="search" placeholder="Buscar usuario..." aria-label="Search">
+          <button class="btn btn-outline-success" type="submit">Buscar</button>
+        </form>
+      </div>
+    </div>
+  </nav>
+  <!-- /NavBar -->
+
+  <div class="container mt-4">
+    <h1>Gestión de usuarios</h1>
+
+    <div class="table-responsive mt-3">
+      <table class="table table-striped align-middle">
+        <thead class="table-light">
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Username</th>
+            <th scope="col">Nombre</th>
+            <th scope="col">Apellido</th>
+            <th scope="col">Email</th>
+            <th scope="col">Fecha nacimiento</th>
+            <th scope="col">Altura</th>
+            <th scope="col">Peso</th>
+            <th scope="col">Experiencia</th>
+            <th scope="col">Objetivo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Ejemplos de fila: reemplazá por datos reales luego -->
+          <tr>
+            <th scope="row">1</th>
+            <td>tobito</td>
+            <td>Otto</td>
+            <td>Mendoza</td>
+            <td>otto@example.com</td>
+            <td>2001-06-15</td>
+            <td>175 cm</td>
+            <td>72 kg</td>
+            <td>Intermediate</td>
+            <td>GainWeight</td>
+          </tr>
+          <tr>
+            <th scope="row">2</th>
+            <td>jthornton</td>
+            <td>Jacob</td>
+            <td>Thornton</td>
+            <td>jacob@example.com</td>
+            <td>1998-11-02</td>
+            <td>180 cm</td>
+            <td>80 kg</td>
+            <td>Beginner</td>
+            <td>Maintain</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
-</nav>
-<!--NavBar-->
 
-    <h1>Gestion de usuarios</h1> <!--poner nombre de user-->
+  <script>
+    function logout() {
+      localStorage.removeItem('appfitness_token');
+      // desde /templates/admin/ volver a la raíz pública
+      window.location.href = '../index.html';
+    }
+  </script>
 
-    <table class="table">
-  <thead>
-    <tr>
-      <th scope="col">#</th>
-      <th scope="col">Usurname</th>
-      <th scope="col">Nombre</th>
-      <th scope="col">Apellido</th>
-      <th scope="col">Email</th>
-      <th scope="col">Fecha nacimiento</th>
-      <th scope="col">Altura</th>
-      <th scope="col">Peso</th>
-      <th scope="col">Experiencia</th>
-      <th scope="col">Objetivo</th>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+    crossorigin="anonymous"></script>
+</body>
 
-
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th scope="row">1</th>
-      <td>Tobito</td>
-      <td>Otto</td>
-      <td>@mdo</td>
-    </tr>
-    <tr>
-      <th scope="row">2</th>
-      <td>Jacob</td>
-      <td>Thornton</td>
-      <td>@fat</td>
-    </tr>
-    <tr>
-      <th scope="row">3</th>
-      <td>John</td>
-      <td>Doe</td>
-      <td>@social</td>
-    </tr>
-  </tbody>
-</table>
-
-    <!--Botones inicio de sesion y registro--> 
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
-  </body>
 </html>

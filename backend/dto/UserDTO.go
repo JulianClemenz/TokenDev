@@ -47,7 +47,8 @@ type UserResponseDTO struct {
 	Height     float32
 	Experience string
 	Objetive   string
-	IsActive   bool `json:"is_active"`
+	IsActive   bool   `json:"is_active"`
+	Role       string `json:"role"`
 }
 
 func NewUserResponseDTO(user models.User) *UserResponseDTO {
@@ -61,6 +62,7 @@ func NewUserResponseDTO(user models.User) *UserResponseDTO {
 		Height:     user.Height,
 		Experience: string(user.Experience),
 		Objetive:   string(user.Objetive),
+		Role:       string(user.Role),
 	}
 }
 
