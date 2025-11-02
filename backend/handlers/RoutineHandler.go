@@ -282,7 +282,7 @@ func (h *RoutineHandler) UpdateExerciseInRoutine(c *gin.Context) {
 		return
 	}
 	idExercise := c.Param("exercise_id")
-	idRoutine := c.Param("routine_id")
+	idRoutine := c.Param("id")
 
 	var exerciseUpd dto.ExcerciseInRoutineModifyDTO
 	if err := c.ShouldBindJSON(&exerciseUpd); err != nil {

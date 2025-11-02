@@ -4,6 +4,7 @@ import (
 	"AppFitness/models"
 	"AppFitness/utils"
 	"context"
+	"errors"
 	"fmt"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -70,6 +71,9 @@ func (repository WorkoutRepository) GetWorkoutByID(id string) (models.Workout, e
 	var workout models.Workout
 	err = result.Decode(&workout)
 	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return models.Workout{}, nil // Devuelve un workout vacío (ID.IsZero()) y SIN ERROR
+		}
 		return models.Workout{}, fmt.Errorf("error al obtener el workout en WorkoutRepository.GetWorkoutByID(): %v", err)
 	}
 	return workout, nil

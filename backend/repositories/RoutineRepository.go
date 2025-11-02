@@ -151,7 +151,7 @@ func (repository RoutineRepository) UpdateExerciseInRoutine(idRutine primitive.O
 		return nil, fmt.Errorf("no se enviaron campos para actualizar")
 	}
 	opts := options.Update().SetArrayFilters(options.ArrayFilters{ //Esa línea crea las opciones que le dicen a MongoDB qué elemento del array debe modificar, en lugar de tocar todos.
-		Filters: []interface{}{bson.M{"e.exercise_id": idExercise}},
+		Filters: []interface{}{bson.M{"e.excercise_id": idExercise}},
 	})
 
 	res, err := collection.UpdateOne( //y aca buscamos la rutina con su id y seteamos la linea de opciones anteriormente obtenidas
