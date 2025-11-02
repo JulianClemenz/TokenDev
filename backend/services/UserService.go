@@ -134,7 +134,10 @@ func (s *UserService) PutUser(newData *dto.UserModifyDTO) (*dto.UserModifyRespon
 		}
 	}
 
-	userDB := dto.GetModelUserModify(newData)
+	userDB, err := dto.GetModelUserModify(newData)
+	if err != nil {
+		return nil, err
+	}
 	userResp := dto.NewUserModifyResponseDTO(userDB)
 
 	if _, err := s.UserRepository.PutUser(userDB); err != nil {
@@ -151,7 +154,7 @@ func (s *UserService) PasswordModify(dto dto.PasswordChange, id string) (bool, e
 
 	userDB, err := s.UserRepository.GetUsersByID(id)
 	if err != nil {
-		return false, fmt.Errorf("error al obtener usuario por id")
+		return false, err
 	}
 
 	if userDB.ID.IsZero() {

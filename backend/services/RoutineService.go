@@ -55,7 +55,10 @@ func (service *RoutineService) PostRoutine(routineDTO *dto.RoutineRegisterDTO) (
 	}
 
 	//LOGICA
-	model := dto.GetModelRoutineRegisterDTO(routineDTO)
+	model, err := dto.GetModelRoutineRegisterDTO(routineDTO)
+	if err != nil {
+		return nil, err
+	}
 	result, err := service.RoutineRepository.PostRoutine(*model) //insertamos la rutina en la base de datos
 	if err != nil {
 		return nil, fmt.Errorf("error al crear la rutina en RoutineService.PostRoutine(): %v", err)
@@ -145,7 +148,7 @@ func (service *RoutineService) AddExcerciseToRoutine(routineID string, exercise 
 	//busqueda de rutina
 	routineDB, err := service.RoutineRepository.GetRoutineByID(routineID)
 	if err != nil {
-		return nil, fmt.Errorf("error al obtener la rutina a modificar: %w", err)
+		return nil, err
 	}
 	if routineDB.ID.IsZero() {
 		return nil, fmt.Errorf("no existe ninguna rutina con ese ID")
@@ -155,23 +158,24 @@ func (service *RoutineService) AddExcerciseToRoutine(routineID string, exercise 
 	if idCreator != idEditor {
 		return nil, fmt.Errorf("Al no ser el creador de esta rutina no se brinda permisos para dicha accion")
 	}
-	id := utils.GetObjectIDFromStringID(routineID) //convertimos para pasar a el repository
-
 	//busqueda de ej
 	exerciseDB, err := service.ExcerciseRepository.GetExcerciseByID(exercise.ExcerciseID)
 	if err != nil {
-		return nil, fmt.Errorf("error al obtener el ejercicio a agregar: %w", err)
+		return nil, err
 	}
 	if exerciseDB.ID.IsZero() {
 		return nil, fmt.Errorf("no existe ningún ejercicio con ese ID")
 	}
 
 	//convertimos dto a model
-	exerciseModel := dto.GetModelExerciseInRoutineDTO(exercise)
+	exerciseModel, err := dto.GetModelExerciseInRoutineDTO(exercise)
+	if err != nil {
+		return nil, err
+	}
 	exerciseModel.CreationDate = time.Now()
 
 	//agregar ejercicio a la rutina
-	result, err := service.RoutineRepository.AddExerciseRutine(exerciseModel, id)
+	result, err := service.RoutineRepository.AddExerciseRutine(exerciseModel, routineDB.ID)
 	if err != nil {
 		return nil, fmt.Errorf("error al agregar el ejercicio a la rutina: %w", err)
 	}
@@ -211,16 +215,24 @@ func (service *RoutineService) RemoveExcerciseFromRoutine(idEditor string, remov
 	if idCreator != idEditor {
 		return nil, fmt.Errorf("Al no ser el creador de esta rutina no se brinda permisos para dicha accion")
 	}
-	routineObjectID := utils.GetObjectIDFromStringID(remove.IDRoutine)
+	routineObjectID, err := utils.GetObjectIDFromStringID(remove.IDRoutine)
+	if err != nil {
+		// Este es un error de formato de ID (400)
+		return nil, fmt.Errorf("ID de rutina con formato inválido: %w", err)
+	}
 
 	exerciseDB, err := service.ExcerciseRepository.GetExcerciseByID(remove.IDExercise)
 	if err != nil {
-		return nil, fmt.Errorf("error al obtener el ejercicio a eliminar: %w", err)
+		return nil, err
 	}
 	if exerciseDB.ID.IsZero() {
 		return nil, fmt.Errorf("no existe ningún ejercicio con ese ID")
 	}
-	exerciseObjectID := utils.GetObjectIDFromStringID(remove.IDExercise)
+	exerciseObjectID, err := utils.GetObjectIDFromStringID(remove.IDExercise)
+	if err != nil {
+		// Este es un error de formato de ID (400)
+		return nil, fmt.Errorf("ID de ejercicio con formato inválido: %w", err)
+	}
 
 	//lógica de eliminación
 	result, err := service.RoutineRepository.DeleteExerciseToRutine(routineObjectID, exerciseObjectID)
@@ -264,7 +276,11 @@ func (service *RoutineService) UpdateExerciseInRoutine(idEditor string, exercise
 	if idCreator != idEditor {
 		return nil, fmt.Errorf("Al no ser el creador de esta rutina no se brinda permisos para dicha accion")
 	}
-	routineObjectID := utils.GetObjectIDFromStringID(exerciseMod.RoutineID)
+	routineObjectID, err := utils.GetObjectIDFromStringID(exerciseMod.RoutineID)
+	if err != nil {
+		return nil, fmt.Errorf("ID de rutina con formato inválido: %w", err)
+
+	}
 
 	exerciseDB, err := service.ExcerciseRepository.GetExcerciseByID(exerciseMod.ExcerciseID)
 	if err != nil {
@@ -273,7 +289,10 @@ func (service *RoutineService) UpdateExerciseInRoutine(idEditor string, exercise
 	if exerciseDB.ID.IsZero() {
 		return nil, fmt.Errorf("no existe ningún ejercicio con ese ID")
 	}
-	exerciseObjectID := utils.GetObjectIDFromStringID(exerciseMod.ExcerciseID)
+	exerciseObjectID, err := utils.GetObjectIDFromStringID(exerciseMod.ExcerciseID)
+	if err != nil {
+		return nil, fmt.Errorf("ID de ejercicio con formato inválido: %w", err)
+	}
 
 	//lógica de modificación
 	exerciseModel := dto.GetModelFromExerciseInRoutineModifyDTO(exerciseMod)

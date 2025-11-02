@@ -3,6 +3,7 @@ package dto
 import (
 	"AppFitness/models"
 	"AppFitness/utils"
+	"fmt"
 	"time"
 )
 
@@ -19,12 +20,23 @@ type WorkoutResponseDTO struct {
 	DoneAt      time.Time `json:"done_at"`
 }
 
-func GetModelWorkoutRegisterDTO(dto *WorkoutRegisterDTO) models.Workout {
-	return models.Workout{
-		RoutineID:   utils.GetObjectIDFromStringID(dto.RoutineID),
-		UserID:      utils.GetObjectIDFromStringID(dto.UserID),
-		RoutineName: dto.RoutineName,
+func GetModelWorkoutRegisterDTO(dto *WorkoutRegisterDTO) (models.Workout, error) {
+	routineOID, err := utils.GetObjectIDFromStringID(dto.RoutineID)
+	if err != nil {
+		return models.Workout{}, fmt.Errorf("ID de rutina con formato inválido: %w", err)
 	}
+
+	userOID, err := utils.GetObjectIDFromStringID(dto.UserID)
+	if err != nil {
+		// Esto no debería pasar si el token es válido, pero lo chequeamos
+		return models.Workout{}, fmt.Errorf("ID de usuario con formato inválido: %w", err)
+	}
+
+	return models.Workout{
+		RoutineID:   routineOID,
+		UserID:      userOID,
+		RoutineName: dto.RoutineName,
+	}, nil // <--- 4. Devuelve nil como error
 }
 
 func NewWorkoutResponseDTO(workout models.Workout) *WorkoutResponseDTO {

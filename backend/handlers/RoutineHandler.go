@@ -198,6 +198,8 @@ func (h *RoutineHandler) AddExcerciseToRoutine(c *gin.Context) {
 		// no encontrados
 		case strings.Contains(msg, "no existe ninguna rutina con ese ID"),
 			strings.Contains(msg, "no existe ningún ejercicio con ese ID"),
+			strings.Contains(msg, "no se encontró ningún ejercicio"),
+			strings.Contains(msg, "no se encontró ninguna rutina"),
 			strings.Contains(msg, "no existe ninguna rutina con ese ID, error al agregar ejercicio"):
 			c.JSON(http.StatusNotFound, gin.H{"error": msg}) // 404
 			return
@@ -208,11 +210,12 @@ func (h *RoutineHandler) AddExcerciseToRoutine(c *gin.Context) {
 			return
 
 		// errores DB
-		case strings.Contains(msg, "error al obtener la rutina a modificar"),
+		case
 			strings.Contains(msg, "error al obtener el ejercicio a agregar"),
 			strings.Contains(msg, "error al agregar el ejercicio a la rutina"),
 			strings.Contains(msg, "error al actualizar la fecha de edición de la rutina"),
-			strings.Contains(msg, "error al obtener la rutina modificada"):
+			strings.Contains(msg, "error al obtener la rutina modificada"),
+			strings.Contains(msg, "error al decodificar"):
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "error interno al agregar ejercicio a la rutina"}) // 500
 			return
 

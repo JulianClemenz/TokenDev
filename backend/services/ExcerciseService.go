@@ -58,10 +58,15 @@ func (service *ExcerciseService) PostExcercise(excerciseDto *dto.ExcerciseRegist
 		return nil, fmt.Errorf("ya existe un ejercicio con ese nombre")
 	}
 
+	idObjCreator, err := utils.GetObjectIDFromStringID(excerciseDto.CreatorUserID)
+	if err != nil {
+		return nil, fmt.Errorf("ID del creador con formato inválido: %w", err)
+	}
+
 	//LOGICA
-	excerciseModel := dto.GetModelExcerciseRegister(excerciseDto)                            //convertimos el dto a modelo para el repository
-	excerciseModel.CreatorUserID = utils.GetObjectIDFromStringID(excerciseDto.CreatorUserID) //asignamos el ObjectID del usuario que crea el ejercicio
-	result, err := service.ExcerciseRepository.PostExcercise(*excerciseModel)                //ejecutamos post en repository
+	excerciseModel := dto.GetModelExcerciseRegister(excerciseDto)             //convertimos el dto a modelo para el repository
+	excerciseModel.CreatorUserID = idObjCreator                               //asignamos el ObjectID del usuario que crea el ejercicio
+	result, err := service.ExcerciseRepository.PostExcercise(*excerciseModel) //ejecutamos post en repository
 	if err != nil {
 		return nil, err
 	}
@@ -76,15 +81,19 @@ func (service *ExcerciseService) PutExcercise(newData *dto.ExcerciseModifyDTO) (
 	if strings.TrimSpace(newData.Name) == "" {
 		return nil, fmt.Errorf("datos vacios")
 	}
-	ObjetiveID := utils.GetObjectIDFromStringID(newData.ID)
+	ObjetiveID, err := utils.GetObjectIDFromStringID(newData.ID)
+	if err != nil {
+		return nil, fmt.Errorf("formato de ID de ejercicio invalido: %w", err)
+	}
+
 	if ObjetiveID.IsZero() {
 		return nil, fmt.Errorf("el id del ejercicio no puede estar vacío")
 	}
 
 	//LOGICA
-	_, err := service.ExcerciseRepository.GetExcerciseByID(newData.ID) //comprobamos que el ejercicio a modificar existe
+	_, err = service.ExcerciseRepository.GetExcerciseByID(newData.ID) //comprobamos que el ejercicio a modificar existe
 	if err != nil {
-		return nil, fmt.Errorf("error al obtener el ejercicio a modificar: %w", err)
+		return nil, err
 	}
 
 	excerciseModel := dto.GetModelExcerciseModify(newData) //convertimos el dto a modelo para el repository

@@ -57,12 +57,15 @@ func (repository SessionRepository) GetSessions() ([]models.Session, error) {
 
 func (repository SessionRepository) GetSessionByID(id string) (models.Session, error) {
 	collection := repository.db.GetClient().Database("AppFitness").Collection("sessions")
-	objectID := utils.GetObjectIDFromStringID(id)
+	objectID, err := utils.GetObjectIDFromStringID(id)
+	if err != nil {
+		return models.Session{}, err
+	}
 	filter := bson.M{"_id": objectID}
 
 	result := collection.FindOne(context.TODO(), filter)
 	var session models.Session
-	err := result.Decode(&session)
+	err = result.Decode(&session)
 	if err != nil {
 		return models.Session{}, fmt.Errorf("error al obtener la session en SessionRepository.GetSessionByID(): %v", err)
 	}
@@ -71,7 +74,12 @@ func (repository SessionRepository) GetSessionByID(id string) (models.Session, e
 
 func (repository SessionRepository) PutSession(session models.Session) (*mongo.UpdateResult, error) {
 	collection := repository.db.GetClient().Database("AppFitness").Collection("sessions")
-	objectID := utils.GetObjectIDFromStringID(session.ID.Hex())
+	idStr := session.ID.Hex()
+	objectID, err := utils.GetObjectIDFromStringID(idStr)
+	if err != nil {
+		return nil, err
+
+	}
 	filtro := bson.M{"_id": objectID}
 	entity := bson.M{"$set": session}
 	result, err := collection.UpdateOne(context.TODO(), filtro, entity)
@@ -83,7 +91,10 @@ func (repository SessionRepository) PutSession(session models.Session) (*mongo.U
 
 func (repository SessionRepository) DeleteSession(id string) (*mongo.DeleteResult, error) {
 	collection := repository.db.GetClient().Database("AppFitness").Collection("sessions")
-	objectID := utils.GetObjectIDFromStringID(id)
+	objectID, err := utils.GetObjectIDFromStringID(id)
+	if err != nil {
+		return nil, err
+	}
 	filter := bson.M{"_id": objectID}
 
 	result, err := collection.DeleteOne(context.TODO(), filter)

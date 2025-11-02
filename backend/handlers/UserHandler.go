@@ -133,9 +133,8 @@ func (h *UserHandler) PasswordModify(c *gin.Context) {
 		return
 	}
 	id := c.Param("id")
-	IDStr := string(id)
 
-	result, err := h.userService.PasswordModify(change, IDStr)
+	result, err := h.userService.PasswordModify(change, id)
 	if err != nil {
 		msg := err.Error()
 		switch {

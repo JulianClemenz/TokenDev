@@ -63,13 +63,16 @@ func (repository ExcerciseRepository) GetExcercises() ([]models.Excercise, error
 
 func (repository ExcerciseRepository) GetExcerciseByID(id string) (models.Excercise, error) {
 	collection := repository.db.GetClient().Database("AppFitness").Collection("excercises")
-	objectID := utils.GetObjectIDFromStringID(id)
+	objectID, err := utils.GetObjectIDFromStringID(id)
+	if err != nil {
+		return models.Excercise{}, fmt.Errorf("ID de formato inválido") // Devuelve error 400
+	}
 	filtro := bson.M{"_id": objectID}
 
 	result := collection.FindOne(context.TODO(), filtro)
 	var excercise models.Excercise
 
-	err := result.Decode(&excercise)
+	err = result.Decode(&excercise)
 	if err != nil {
 		return models.Excercise{}, fmt.Errorf("error al obtener el ejercicio en ExcerciseRepository.GetExcerciseByID(): %v", err)
 	}
@@ -100,7 +103,10 @@ func (repository ExcerciseRepository) PutExcercise(excercise models.Excercise) (
 
 func (repository ExcerciseRepository) DeleteExcercise(id string) (*mongo.DeleteResult, error) {
 	collection := repository.db.GetClient().Database("AppFitness").Collection("excercises")
-	objectID := utils.GetObjectIDFromStringID(id)
+	objectID, err := utils.GetObjectIDFromStringID(id)
+	if err != nil {
+		return nil, fmt.Errorf("ID de formato inválido") // Devuelve error 400
+	}
 	filtro := bson.M{"_id": objectID}
 
 	result, err := collection.DeleteOne(context.TODO(), filtro)

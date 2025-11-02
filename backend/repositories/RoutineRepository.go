@@ -67,13 +67,16 @@ func (repository RoutineRepository) GetRoutines() ([]*models.Routine, error) {
 
 func (repository RoutineRepository) GetRoutineByID(id string) (*models.Routine, error) {
 	collection := repository.db.GetClient().Database("AppFitness").Collection("routines")
-	objID := utils.GetObjectIDFromStringID(id)
+	objID, err := utils.GetObjectIDFromStringID(id)
+	if err != nil {
+		return nil, err
+	}
 	filter := bson.M{"_id": objID}
 
 	result := collection.FindOne(context.TODO(), filter)
 
 	var routine *models.Routine
-	err := result.Decode(&routine)
+	err = result.Decode(&routine)
 	if err != nil {
 		return nil, fmt.Errorf("error al obtener la rutina en RoutineRepository.GetRoutineByID(): %v", err)
 	}
@@ -93,7 +96,10 @@ func (repository RoutineRepository) PutRoutine(routine models.Routine) (*mongo.U
 
 func (repository RoutineRepository) DeleteRoutine(id string) (*mongo.DeleteResult, error) {
 	collection := repository.db.GetClient().Database("AppFitness").Collection("routines")
-	objectID := utils.GetObjectIDFromStringID(id)
+	objectID, err := utils.GetObjectIDFromStringID(id)
+	if err != nil {
+		return nil, err
+	}
 	filter := bson.M{"_id": objectID}
 	result, err := collection.DeleteOne(context.TODO(), filter)
 	if err != nil {

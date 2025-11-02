@@ -59,13 +59,16 @@ func (repository WorkoutRepository) GetWorkouts() ([]models.Workout, error) {
 
 func (repository WorkoutRepository) GetWorkoutByID(id string) (models.Workout, error) {
 	collection := repository.db.GetClient().Database("AppFitness").Collection("workouts")
-	objectID := utils.GetObjectIDFromStringID(id)
+	objectID, err := utils.GetObjectIDFromStringID(id)
+	if err != nil {
+		return models.Workout{}, err
+	}
 	filter := bson.M{"_id": objectID}
 
 	result := collection.FindOne(context.TODO(), filter)
 
 	var workout models.Workout
-	err := result.Decode(&workout)
+	err = result.Decode(&workout)
 	if err != nil {
 		return models.Workout{}, fmt.Errorf("error al obtener el workout en WorkoutRepository.GetWorkoutByID(): %v", err)
 	}
@@ -86,7 +89,10 @@ func (repository WorkoutRepository) PutWorkout(workout models.Workout) (*mongo.U
 
 func (repository WorkoutRepository) DeleteWorkout(id string) (*mongo.DeleteResult, error) {
 	collection := repository.db.GetClient().Database("AppFitness").Collection("workouts")
-	objectID := utils.GetObjectIDFromStringID(id)
+	objectID, err := utils.GetObjectIDFromStringID(id)
+	if err != nil {
+		return nil, err
+	}
 	filter := bson.M{"_id": objectID}
 	result, err := collection.DeleteOne(context.TODO(), filter)
 	if err != nil {
@@ -97,7 +103,10 @@ func (repository WorkoutRepository) DeleteWorkout(id string) (*mongo.DeleteResul
 
 func (repository WorkoutRepository) GetWorkoutsByUserID(userID string) ([]models.Workout, error) {
 	collection := repository.db.GetClient().Database("AppFitness").Collection("workouts")
-	userObjectID := utils.GetObjectIDFromStringID(userID)
+	userObjectID, err := utils.GetObjectIDFromStringID(userID)
+	if err != nil {
+		return nil, err
+	}
 	filter := bson.M{"user_id": userObjectID}
 
 	result, err := collection.Find(context.TODO(), filter)

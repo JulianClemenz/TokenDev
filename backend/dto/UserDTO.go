@@ -3,6 +3,7 @@ package dto
 import (
 	"AppFitness/models"
 	"AppFitness/utils"
+	"fmt"
 	"time"
 )
 
@@ -73,9 +74,15 @@ type UserModifyDTO struct {
 	Objetive   string  `json:"objetive"`
 }
 
-func GetModelUserModify(user *UserModifyDTO) models.User {
+func GetModelUserModify(user *UserModifyDTO) (models.User, error) {
+
+	// Capturamoss el ObjectID y el error
+	objectID, err := utils.GetObjectIDFromStringID(user.ID)
+	if err != nil {
+		return models.User{}, fmt.Errorf("ID de usuario con formato inválido: %w", err)
+	}
 	return models.User{
-		ID:         utils.GetObjectIDFromStringID(user.ID),
+		ID:         objectID,
 		UserName:   user.UserName,
 		Email:      user.Email,
 		Role:       models.AdminLevel(user.Role),
@@ -83,7 +90,7 @@ func GetModelUserModify(user *UserModifyDTO) models.User {
 		Height:     user.Height,
 		Experience: models.ExperienceLevel(user.Experience),
 		Objetive:   models.ObjetiveLevel(user.Objetive),
-	}
+	}, nil
 }
 
 type UserModifyResponseDTO struct {

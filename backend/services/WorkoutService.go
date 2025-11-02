@@ -43,7 +43,10 @@ func (ws WorkoutService) PostWorkout(workoutDTO *dto.WorkoutRegisterDTO /*UserID
 		return nil, fmt.Errorf("rutina no encontrada")
 	}
 
-	workoutModel := dto.GetModelWorkoutRegisterDTO(workoutDTO)
+	workoutModel, err := dto.GetModelWorkoutRegisterDTO(workoutDTO)
+	if err != nil {
+		return nil, err
+	}
 	workoutModel.Date = time.Now()
 	workoutModel.RoutineName = result.Name
 

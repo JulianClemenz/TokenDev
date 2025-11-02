@@ -3,6 +3,7 @@ package dto
 import (
 	"AppFitness/models"
 	"AppFitness/utils"
+	"fmt"
 	"time"
 )
 
@@ -17,19 +18,32 @@ type ExcerciseInRoutineDTO struct {
 	Weight      float64 `json:"weight" binding:"gte=0,lte=1000"`
 }
 
-func GetModelRoutineRegisterDTO(routine *RoutineRegisterDTO) *models.Routine {
+func GetModelRoutineRegisterDTO(routine *RoutineRegisterDTO) (*models.Routine, error) {
+
+	// Capturamos el ObjectID y el error
+	creatorOID, err := utils.GetObjectIDFromStringID(routine.CreatorUserID)
+	if err != nil {
+		return nil, fmt.Errorf("ID de creador con formato inválido: %w", err)
+	}
+
 	return &models.Routine{
 		Name:          routine.Name,
-		CreatorUserID: utils.GetObjectIDFromStringID(routine.CreatorUserID),
-	}
+		CreatorUserID: creatorOID,
+	}, nil
 }
-func GetModelExerciseInRoutineDTO(excercise *ExcerciseInRoutineDTO) models.ExcerciseInRoutine {
+func GetModelExerciseInRoutineDTO(excercise *ExcerciseInRoutineDTO) (models.ExcerciseInRoutine, error) {
+
+	// Capturamos el ObjectID y el error
+	excerciseOID, err := utils.GetObjectIDFromStringID(excercise.ExcerciseID)
+	if err != nil {
+		return models.ExcerciseInRoutine{}, fmt.Errorf("ID de ejercicio con formato inválido: %w", err)
+	}
 	return models.ExcerciseInRoutine{
-		ExcerciseID: utils.GetObjectIDFromStringID(excercise.ExcerciseID),
+		ExcerciseID: excerciseOID,
 		Repetitions: excercise.Repetitions,
 		Series:      excercise.Series,
 		Weight:      excercise.Weight,
-	}
+	}, nil
 }
 func newExcerciseInRoutineResponseDTO(excerciseList []models.ExcerciseInRoutine) []ExcerciseInRoutineDTO {
 	var excerciseInRoutineDTOList []ExcerciseInRoutineDTO

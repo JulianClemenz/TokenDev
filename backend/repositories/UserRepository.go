@@ -74,12 +74,15 @@ func (repository UserRepository) GetUsers() ([]models.User, error) { //REVISAR Y
 
 func (repository UserRepository) GetUsersByID(id string) (models.User, error) {
 	collection := repository.db.GetClient().Database("AppFitness").Collection("users")
-	objectID := utils.GetObjectIDFromStringID(id)
+	objectID, err := utils.GetObjectIDFromStringID(id)
+	if err != nil {
+		return models.User{}, fmt.Errorf("ID de formato inválido")
+	}
 
 	filter := bson.M{"_id": objectID}
 
 	var user models.User
-	err := collection.FindOne(context.TODO(), filter).Decode(&user)
+	err = collection.FindOne(context.TODO(), filter).Decode(&user)
 
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
@@ -127,7 +130,10 @@ func (repository UserRepository) PutUser(user models.User) (*mongo.UpdateResult,
 
 func (repository UserRepository) DeleteUser(id string) (*mongo.DeleteResult, error) {
 	collection := repository.db.GetClient().Database("AppFitness").Collection("users")
-	objectID := utils.GetObjectIDFromStringID(id)
+	objectID, err := utils.GetObjectIDFromStringID(id)
+	if err != nil {
+		return nil, err
+	}
 	filter := bson.M{"_id": objectID}
 
 	result, err := collection.DeleteOne(context.TODO(), filter)
@@ -166,9 +172,13 @@ func (r UserRepository) ExistByUserName(userName string) (bool, error) { //verif
 
 func (r UserRepository) ExistByUserNameExceptID(id string, userName string) (bool, error) {
 	collection := r.db.GetClient().Database("AppFitness").Collection("users")
+	objectID, err := utils.GetObjectIDFromStringID(id)
+	if err != nil {
+		return false, err
+	}
 	filter := bson.M{
 		"user_name": userName,
-		"_id":       bson.M{"$ne": utils.GetObjectIDFromStringID(id)},
+		"_id":       bson.M{"$ne": objectID},
 	} //con este filtro buscamos si existe algun email pero q no se el de nuestro email
 
 	count, err := collection.CountDocuments(context.TODO(), filter)
