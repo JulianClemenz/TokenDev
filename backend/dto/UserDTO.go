@@ -38,6 +38,7 @@ func (user UserRegisterDTO) GetModelUserRegister() models.User {
 }
 
 type UserResponseDTO struct {
+	ID         string `json:"id"`
 	Name       string
 	LastName   string
 	UserName   string
@@ -53,6 +54,7 @@ type UserResponseDTO struct {
 
 func NewUserResponseDTO(user models.User) *UserResponseDTO {
 	return &UserResponseDTO{
+		ID:         utils.GetStringIDFromObjectID(user.ID),
 		Name:       user.Name,
 		LastName:   user.LastName,
 		UserName:   user.UserName,

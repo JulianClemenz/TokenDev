@@ -1,71 +1,100 @@
 <!doctype html>
-<html lang="en">
-  <!--NavBar-->  
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>AppFitness</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-  </head>
-  <body>
-    <nav class="navbar navbar-expand-lg bg-body-tertiary">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="#">Golds Gym</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="#">Inicio</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="#"><strong>Mi cuenta</strong></a>
-        </li>
-        
+<html lang="es">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AppFitness - Mi cuenta</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+</head>
+
+<body>
+  <!-- NavBar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="../user/dashboard.html">Golds Gym</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link" href="../user/dashboard.html">Inicio</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="#"><strong>Mi cuenta</strong></a>
+          </li>
+        </ul>
+
+        <form class="d-flex" role="search">
+          <input class="form-control me-2" type="search" placeholder="Buscar..." aria-label="Search">
+          <button class="btn btn-outline-success" type="submit">Buscar</button>
+        </form>
+      </div>
+    </div>
+  </nav>
+  <!-- /NavBar -->
+
+  <div class="container mt-4">
+    <h1 class="mb-4">Gestión de cuenta</h1>
+
+    <!-- Información personal -->
+    <div class="card mb-3">
+      <div class="card-header fw-bold bg-primary text-white">
+        Información personal
+      </div>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item">Nombre de usuario: <strong>username</strong></li>
+        <li class="list-group-item">Nombre: <strong>firstname</strong></li>
+        <li class="list-group-item">Apellido: <strong>lastname</strong></li>
+        <li class="list-group-item">Correo electrónico: <strong>mail@example.com</strong></li>
+        <li class="list-group-item">Fecha de nacimiento: <strong>xx/xx/xxxx</strong></li>
       </ul>
-      <form class="d-flex" role="search">
-        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"/>
-        <button class="btn btn-outline-success" type="submit">Search</button>
-      </form>
+    </div>
+
+    <!-- Información física -->
+    <div class="card mb-4">
+      <div class="card-header fw-bold bg-secondary text-white">
+        Información física
+      </div>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item">Altura: <strong>height cm</strong></li>
+        <li class="list-group-item">Peso: <strong>weight kg</strong></li>
+        <li class="list-group-item">Experiencia: <strong>experience</strong></li>
+        <li class="list-group-item">Objetivo: <strong>objective</strong></li>
+      </ul>
+    </div>
+
+    <!-- Botones de acción -->
+    <div class="d-flex flex-column flex-sm-row gap-3">
+      <button type="button" class="btn btn-outline-success w-100" onclick="window.location.href='profile-edit.html'">
+        Editar perfil
+      </button>
+
+      <button type="button" class="btn btn-outline-warning w-100"
+        onclick="window.location.href='profile-edit-password.html'">
+        Cambiar contraseña
+      </button>
+
+      <button type="button" class="btn btn-outline-danger w-100" onclick="logout()">
+        Cerrar sesión
+      </button>
     </div>
   </div>
-</nav>
-<!--NavBar-->
 
-    <h1>Gestion de cuenta</h1> <!--poner nombre de user-->
+  <script>
+    function logout() {
+      localStorage.removeItem('appfitness_token');
+      window.location.href = '../../index.html';
+    }
+  </script>
 
-    <!--Botones inicio de sesion y registro--> 
-    <ul class="list-group list-group-flush">
-    <li class="list-group-item"><Strong>Informacion personales</Strong></li>
-    <li class="list-group-item">Nombre usuario: username</li>
-    <li class="list-group-item">Nombre: firstname</li>
-    <li class="list-group-item">Apellido: lastname</li>
-    <li class="list-group-item">Mail: mail</li>
-    <li class="list-group-item">BirthDay: xx/xx/xxxx</li>
-    </ul>
-    <br>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+    crossorigin="anonymous"></script>
+</body>
 
-    <ul class="list-group list-group-flush">
-    <li class="list-group-item"><Strong>Informacion fisicos</Strong></li>
-    <li class="list-group-item">Altura: height</li>
-    <li class="list-group-item">Peso: weight</li>
-    <li class="list-group-item">Experiencia: experience</li>
-    <li class="list-group-item">Objetivo: objetive</li>
-
-    <br>
-    <br>
-    <button type="button" class="btn btn-outline-success">Editar perfil</button>
-    <br>
-    <br>
-    <button type="button" class="btn btn-outline-warning">Cambiar contraseña</button>
-    <br>
-    <br>
-    <button type="button" class="btn btn-outline-danger">Cerrar sesion</button>
-
-
- 
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
-  </body>
 </html>
