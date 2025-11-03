@@ -55,7 +55,6 @@
     // enganchar el botón
     document.getElementById('btn_login').addEventListener('click', async () => {
 
-      // 1. Tu backend SOLO acepta email para login
       const email = document.getElementById('login_user').value.trim();
       const password = document.getElementById('login_pass').value.trim();
       const msgElement = document.getElementById('login_msg');
@@ -63,24 +62,17 @@
       try {
         msgElement.textContent = ''; // Limpiar errores previos
 
-        // 2. Llama a la función global de app.js
         const data = await login(email, password);
 
-        // 3. ¡SOLUCIÓN DEFINITIVA!
-        // Ahora podemos leer data.user.role (gracias al Paso 1)
         // y redirigir al dashboard correcto.
         if (data.user && data.user.role === 'admin') {
           // Si es admin, va al dashboard de admin
-          //
           window.location.href = "/dashboard-admin";
         } else {
-          // Para cualquier otro caso (ej: 'client'), va al dashboard de usuario
-          //
           window.location.href = "/dashboard-user";
         }
 
       } catch (e) {
-        // 4. Muestra el error de la API (ej: "credenciales inválidas")
         msgElement.textContent = e.message;
       }
     });

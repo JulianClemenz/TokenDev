@@ -62,14 +62,16 @@
   <!-- /NavBar -->
 
   <div class="container mt-4">
-    <h1>¡Bienvenido, User!</h1> <!-- Acá después podés inyectar el nombre real -->
+    <h1>¡Bienvenido, User!</h1>
   </div>
 
   <script>
     // función simple para cerrar sesión
     function logout() {
-      localStorage.removeItem('appfitness_token'); // elimina el token si lo estás guardando así
-      window.location.href = 'index.html'; // redirige al inicio o login
+      sessionStorage.removeItem('access_token');
+      sessionStorage.removeItem('refresh_token');
+      sessionStorage.removeItem('user');
+      window.location.href = '/index.html';
     }
   </script>
 

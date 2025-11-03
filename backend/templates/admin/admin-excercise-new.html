@@ -111,21 +111,23 @@
       </button>
       <a class="btn btn-outline-secondary" href="admin-exercises.html">Cancelar</a>
     </div>
-    
+
     <p id="error_msg" class="text-danger mt-3"></p>
   </div>
 
   <script>
     function logout() {
-      localStorage.removeItem('appfitness_token');
-      window.location.href = '../index.html';
+      sessionStorage.removeItem('access_token');
+      sessionStorage.removeItem('refresh_token');
+      sessionStorage.removeItem('user');
+      window.location.href = '/index.html';
     }
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
     crossorigin="anonymous"></script>
-    
+
   <script src="/statics/js/admin-exercise-new.js"></script>
 </body>
 

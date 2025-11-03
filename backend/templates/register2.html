@@ -70,11 +70,10 @@
   </div>
 
   <script>
-    // Mostrar un mini resumen del paso 1 (si existe)
+    // Mostrar un mini resumen del paso 1
     (function preload() {
       const part1 = sessionStorage.getItem('reg_part1');
       if (!part1) {
-        // si entró directo a /register2.html sin pasar por el 1
         window.location.href = "register.html";
         return;
       }
@@ -83,12 +82,10 @@
       document.getElementById('resume').textContent = `Vas a crear la cuenta para: ${txt}`;
     })();
 
-    // Limpiar
     document.getElementById('btn_clear2').addEventListener('click', () => {
       ['reg_height', 'reg_weight', 'reg_experience', 'reg_goal'].forEach(id => document.getElementById(id).value = "");
     });
 
-    // Finalizar registro → combina paso1 + paso2 y llama a la API
     document.getElementById('btn_register2').addEventListener('click', async () => {
       const part1 = JSON.parse(sessionStorage.getItem('reg_part1') || "{}");
       const payload = {
@@ -106,7 +103,6 @@
       }
 
       try {
-        // acá usamos la misma función register() de js/app.js
         await register(payload);
         sessionStorage.removeItem('reg_part1');
         alert('Usuario creado. Ahora iniciá sesión.');

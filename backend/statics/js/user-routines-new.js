@@ -1,4 +1,3 @@
-// --- Funciones de Ayuda ---
 
 /**
  * Obtiene el token de autenticación desde sessionStorage.
@@ -12,7 +11,7 @@ function getToken() {
  */
 async function fetchApi(url, options = {}) {
   const token = getToken();
-  
+
   const headers = {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`,
@@ -23,24 +22,19 @@ async function fetchApi(url, options = {}) {
 
   if (response.status === 401) {
     alert('Tu sesión ha expirado. Por favor, inicia sesión de nuevo.');
-    window.location.href = '/login'; 
+    window.location.href = '/login';
     throw new Error('No autorizado');
   }
-  
+
   return response;
 }
 
-// --- Lógica de la Página ---
-
-/**
- * Maneja el clic en el botón de guardar nueva rutina.
- */
 async function handleSaveRoutine() {
   const routineNameInput = document.getElementById('routine_name');
   const errorElement = document.getElementById('error_msg');
   const routineName = routineNameInput.value.trim();
 
-  errorElement.textContent = ''; // Limpiar errores
+  errorElement.textContent = '';
 
   // 1. Validar que el nombre no esté vacío
   if (!routineName) {
@@ -67,9 +61,8 @@ async function handleSaveRoutine() {
 
     // 3. Éxito
     alert('¡Rutina creada exitosamente!');
-    
-    // Opcional: ¿Redirigir a la página de "editar" de esa nueva rutina?
-    // Por ahora, redirigimos de vuelta al listado.
+
+    //redirigimos de vuelta al listado.
     window.location.href = 'user-routines.html';
 
   } catch (error) {
@@ -80,7 +73,6 @@ async function handleSaveRoutine() {
 
 // --- Inicialización ---
 document.addEventListener('DOMContentLoaded', () => {
-  // Asignar el evento al botón de guardar
   const saveButton = document.getElementById('btn_save_routine');
   if (saveButton) {
     saveButton.addEventListener('click', handleSaveRoutine);

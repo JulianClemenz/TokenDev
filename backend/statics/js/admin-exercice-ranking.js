@@ -1,4 +1,3 @@
-// --- Funciones de Ayuda ---
 
 /**
  * Obtiene el token de autenticación desde sessionStorage.
@@ -12,7 +11,7 @@ function getToken() {
  */
 async function fetchApi(url, options = {}) {
   const token = getToken();
-  
+
   const headers = {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`,
@@ -24,10 +23,10 @@ async function fetchApi(url, options = {}) {
   if (response.status === 401) {
     // Token inválido o expirado, redirigir al login
     alert('Tu sesión ha expirado. Por favor, inicia sesión de nuevo.');
-    window.location.href = '/login'; 
+    window.location.href = '/login';
     throw new Error('No autorizado');
   }
-  
+
   return response;
 }
 
@@ -35,7 +34,7 @@ async function fetchApi(url, options = {}) {
 
 /**
  * Carga el ranking COMPLETO de ejercicios.
- * Llama a: GET /api/admin/stats/exercises (AdminHandler.GetGlobalStats)
+ * Llama a(AdminHandler.GetGlobalStats)
  */
 async function loadFullRanking() {
   const tableBody = document.getElementById('ranking_table_body');
@@ -44,7 +43,7 @@ async function loadFullRanking() {
 
   try {
     const response = await fetchApi('/api/admin/stats/exercises');
-    
+
     if (response.status === 204) { // 204 No Content
       tableBody.innerHTML = '<tr><td colspan="4">No hay datos de ejercicios.</td></tr>';
       return;
@@ -55,12 +54,10 @@ async function loadFullRanking() {
       throw new Error(errorData.error || 'Error al cargar el ranking de ejercicios');
     }
 
-    const exercises = await response.json(); 
-    tableBody.innerHTML = ''; 
+    const exercises = await response.json();
+    tableBody.innerHTML = '';
 
     if (exercises && exercises.length > 0) {
-      // A diferencia de admin-stats, aquí NO usamos .slice(0, 3)
-      // Iteramos sobre todos los ejercicios.
       exercises.forEach((exercise, index) => {
         const row = document.createElement('tr');
         row.innerHTML = `
@@ -81,7 +78,6 @@ async function loadFullRanking() {
   }
 }
 
-// --- Inicialización ---
 document.addEventListener('DOMContentLoaded', () => {
   loadFullRanking();
 });

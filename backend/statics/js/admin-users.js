@@ -1,4 +1,3 @@
-// --- Funciones de Ayuda ---
 
 /**
  * Obtiene el token de autenticación desde sessionStorage.
@@ -13,7 +12,7 @@ function getToken() {
  */
 async function fetchApi(url, options = {}) {
   const token = getToken();
-  
+
   const headers = {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`,
@@ -28,7 +27,7 @@ async function fetchApi(url, options = {}) {
     window.location.href = '/login'; // Asumiendo que el login está en la raíz
     throw new Error('No autorizado');
   }
-  
+
   return response;
 }
 
@@ -39,15 +38,14 @@ async function fetchApi(url, options = {}) {
  */
 async function loadUsers() {
   const tableBody = document.querySelector('.table tbody');
-  // Ajustamos el colspan a 10, según las columnas de tu tabla
-  tableBody.innerHTML = '<tr><td colspan="10">Cargando usuarios...</td></tr>'; 
+  tableBody.innerHTML = '<tr><td colspan="10">Cargando usuarios...</td></tr>';
 
   try {
     // Este es el endpoint que definiste en main.go para GetLogs
-    const response = await fetchApi('/api/admin/stats/users'); 
-    
+    const response = await fetchApi('/api/admin/stats/users');
+
     if (!response.ok) {
-        // Manejo de 204 No Content (si el handler lo devuelve)
+      // Manejo de 204 No Content (si el handler lo devuelve)
       if (response.status === 204) {
         tableBody.innerHTML = '<tr><td colspan="10">No hay usuarios registrados.</td></tr>';
         return;
@@ -55,13 +53,13 @@ async function loadUsers() {
       throw new Error(`Error ${response.status}: No se pudieron cargar los usuarios.`);
     }
 
-    const data = await response.json(); // La respuesta es { total: N, users: [...] }
-    tableBody.innerHTML = ''; // Limpiar "cargando"
+    const data = await response.json();
+    tableBody.innerHTML = '';
 
     if (data.users && data.users.length > 0) {
       data.users.forEach((user, index) => {
         const row = document.createElement('tr');
-        
+
         // Formatear la fecha (asumiendo que llega como ISO string "YYYY-MM-DDTHH...")
         const birthDate = user.BirthDate ? user.BirthDate.split('T')[0] : 'N/D';
 
@@ -90,10 +88,6 @@ async function loadUsers() {
 
 
 // --- Inicialización ---
-
-/**
- * Se ejecuta cuando el contenido del DOM está completamente cargado.
- */
 document.addEventListener('DOMContentLoaded', () => {
   loadUsers();
 });

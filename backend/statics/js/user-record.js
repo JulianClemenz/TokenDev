@@ -1,4 +1,3 @@
-// --- Funciones de Ayuda ---
 
 /**
  * Obtiene el token de autenticación desde sessionStorage.
@@ -12,7 +11,7 @@ function getToken() {
  */
 async function fetchApi(url, options = {}) {
   const token = getToken();
-  
+
   const headers = {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`,
@@ -23,10 +22,10 @@ async function fetchApi(url, options = {}) {
 
   if (response.status === 401) {
     alert('Tu sesión ha expirado. Por favor, inicia sesión de nuevo.');
-    window.location.href = '/login'; 
+    window.location.href = '/login';
     throw new Error('No autorizado');
   }
-  
+
   return response;
 }
 
@@ -61,8 +60,7 @@ async function loadRecords() {
     if (records && records.length > 0) {
       records.forEach(record => {
         const row = document.createElement('tr');
-        
-        // Formatear la fecha (DoneAt viene del DTO)
+
         const date = new Date(record.DoneAt);
         const formattedDate = date.toLocaleString('es-ES', {
           day: '2-digit',
@@ -72,8 +70,6 @@ async function loadRecords() {
           minute: '2-digit'
         });
 
-        // NOTA: Asumimos que el DTO incluye el 'id' del workout.
-        // Si no lo hace, el botón de borrar fallará.
         row.innerHTML = `
           <td>${record.RoutineName || 'Rutina eliminada'}</td>
           <td>${formattedDate}</td>
@@ -124,7 +120,7 @@ async function handleDeleteRecord(workoutId) {
 
     alert('Registro eliminado correctamente.');
     loadRecords(); // Recargar la tabla
-    
+
   } catch (error) {
     console.error('Error al eliminar registro:', error);
     errorElement.textContent = `Error: ${error.message}`;
@@ -133,14 +129,14 @@ async function handleDeleteRecord(workoutId) {
 
 // --- Inicialización ---
 document.addEventListener('DOMContentLoaded', () => {
-  // 1. Cargar los registros al iniciar
+  //Cargar los registros al iniciar
   loadRecords();
 
-  // 2. Usar delegación de eventos para los botones de eliminar
+  //Usar delegación de eventos para los botones de eliminar
   const tableBody = document.getElementById('record-table-body');
   tableBody.addEventListener('click', (event) => {
     const deleteButton = event.target.closest('.btn-delete-record');
-    
+
     if (deleteButton) {
       const workoutId = deleteButton.dataset.id;
       if (workoutId) {

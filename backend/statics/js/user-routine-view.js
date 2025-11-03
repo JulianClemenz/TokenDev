@@ -4,30 +4,30 @@
  * Obtiene el token de autenticación desde sessionStorage.
  */
 function getToken() {
-  return sessionStorage.getItem('access_token');
+    return sessionStorage.getItem('access_token');
 }
 
 /**
  * Realiza una solicitud fetch autenticada.
  */
 async function fetchApi(url, options = {}) {
-  const token = getToken();
-  
-  const headers = {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`,
-    ...options.headers,
-  };
+    const token = getToken();
 
-  const response = await fetch(url, { ...options, headers });
+    const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+        ...options.headers,
+    };
 
-  if (response.status === 401) {
-    alert('Tu sesión ha expirado. Por favor, inicia sesión de nuevo.');
-    window.location.href = '/login'; 
-    throw new Error('No autorizado');
-  }
-  
-  return response;
+    const response = await fetch(url, { ...options, headers });
+
+    if (response.status === 401) {
+        alert('Tu sesión ha expirado. Por favor, inicia sesión de nuevo.');
+        window.location.href = '/login';
+        throw new Error('No autorizado');
+    }
+
+    return response;
 }
 
 // --- Lógica de la Página ---
@@ -36,10 +36,10 @@ async function fetchApi(url, options = {}) {
  * Carga los datos de UNA rutina y TODOS sus ejercicios.
  */
 async function loadRoutineView() {
-    // 1. Obtener el ID de la rutina de la URL
+    // Obtener el ID de la rutina de la URL
     const urlParams = new URLSearchParams(window.location.search);
     const routineId = urlParams.get('id');
-    
+
     // Elementos del DOM donde mostraremos los datos
     const routineNameEl = document.getElementById('routine-name-display');
     const exerciseListEl = document.getElementById('exercise-list-container');
@@ -51,11 +51,10 @@ async function loadRoutineView() {
     }
 
     try {
-        // 2. Mostrar "Cargando..."
+        // Mostrar "Cargando..."
         routineNameEl.textContent = 'Cargando rutina...';
         exerciseListEl.innerHTML = '';
 
-        // 3. PASO 1: Obtener la rutina principal (que tiene la lista de IDs de ejercicios)
         // Llama a GetRoutineById en RoutineHandler
         const routineResponse = await fetchApi(`/api/routines/${routineId}`);
         if (!routineResponse.ok) {
@@ -64,30 +63,27 @@ async function loadRoutineView() {
         }
         const routine = await routineResponse.json();
 
-        // 4. Mostrar el nombre de la rutina
+        // Mostrar el nombre de la rutina
         routineNameEl.textContent = routine.Name;
 
-        // 5. Revisar si hay ejercicios en la lista
+        // Revisar si hay ejercicios en la lista
         // (Usamos la propiedad 'ExcerciseList' tal como está en tu DTO de Go)
         if (!routine.ExcerciseList || routine.ExcerciseList.length === 0) {
             exerciseListEl.innerHTML = '<p class="text-muted fs-5">Esta rutina aún no tiene ejercicios.</p>';
             return;
         }
 
-        // 6. PASO 2: Obtener los detalles (nombre) de CADA ejercicio en la lista
-        // Usamos Promise.all para hacer todas las llamadas en paralelo para más eficiencia
-        
+        // Obtener los detalles (nombre) de CADA ejercicio en la lista        
         const exerciseDetailPromises = routine.ExcerciseList.map(async (exerciseItem) => {
             try {
                 // Llama a GetExcerciseByID en ExerciseHandler
-                // (Usamos 'exercise_id' que es el nombre del campo en el JSON de ExcerciseInRoutineDTO)
                 const exerciseResponse = await fetchApi(`/api/exercises/${exerciseItem.exercise_id}`);
                 if (!exerciseResponse.ok) {
                     console.warn(`No se pudo cargar el ejercicio ID: ${exerciseItem.exercise_id}`);
                     return { ...exerciseItem, Name: 'Ejercicio no encontrado' }; // Fallback
                 }
                 const exerciseDetails = await exerciseResponse.json();
-                
+
                 // Combinamos los datos (Series, Reps, Peso) con el nombre del ejercicio
                 return {
                     ...exerciseItem, // Contiene Repetitions, Series, Weight
@@ -102,7 +98,7 @@ async function loadRoutineView() {
         // Esperamos a que todas las llamadas a GetExcerciseByID terminen
         const exercisesWithDetails = await Promise.all(exerciseDetailPromises);
 
-        // 7. Renderizar los ejercicios en tarjetas
+        // Renderizar los ejercicios en tarjetas
         exercisesWithDetails.forEach(ex => {
             const card = document.createElement('div');
             card.className = 'col-md-6 col-lg-4 mb-3';

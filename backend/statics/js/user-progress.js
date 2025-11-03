@@ -1,4 +1,3 @@
-// --- Funciones de Ayuda ---
 
 /**
  * Obtiene el token de autenticación desde sessionStorage.
@@ -12,7 +11,7 @@ function getToken() {
  */
 async function fetchApi(url, options = {}) {
   const token = getToken();
-  
+
   const headers = {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`,
@@ -23,10 +22,10 @@ async function fetchApi(url, options = {}) {
 
   if (response.status === 401) {
     alert('Tu sesión ha expirado. Por favor, inicia sesión de nuevo.');
-    window.location.href = '/login'; 
+    window.location.href = '/login';
     throw new Error('No autorizado');
   }
-  
+
   return response;
 }
 
@@ -48,28 +47,25 @@ async function loadStats() {
     routinesBody.innerHTML = '<tr><td colspan="3">Cargando...</td></tr>';
 
     const response = await fetchApi('/api/workouts/stats');
-    
+
     if (!response.ok) {
-        if (response.status === 404) {
-             throw new Error('Aún no tienes suficientes datos para mostrar estadísticas.');
-        }
-        const err = await response.json();
-        throw new Error(err.error || 'No se pudieron cargar las estadísticas');
+      if (response.status === 404) {
+        throw new Error('Aún no tienes suficientes datos para mostrar estadísticas.');
+      }
+      const err = await response.json();
+      throw new Error(err.error || 'No se pudieron cargar las estadísticas');
     }
 
     const stats = await response.json(); // Esto es tu WorkoutStatsDTO
 
-    // 1. Renderizar Tarjetas Simples
-    // (TotalWorkouts y WeeklyFrequency vienen del DTO)
+    // Renderizar Tarjetas Simples
     totalEl.textContent = stats.TotalWorkouts || 0;
     freqEl.textContent = (stats.WeeklyFrequency || 0).toFixed(1);
 
-    // 2. Renderizar Tabla de Rutinas Más Usadas
-    // (MostUsedRoutines viene del DTO)
+    //Renderizar Tabla de Rutinas Más Usadas
     renderTopRoutines(stats.MostUsedRoutines, routinesBody);
 
-    // 3. Renderizar Gráfico de Progreso
-    // (ProgressOverTime viene del DTO)
+    // Renderizar Gráfico de Progreso
     renderProgressChart(stats.ProgressOverTime);
 
   } catch (error) {
@@ -111,9 +107,8 @@ function renderProgressChart(progressData) {
   const ctx = document.getElementById('progressChart');
   if (!ctx || !progressData) return;
 
-  // Mapeamos los datos del DTO (ProgressPointDTO) al formato de Chart.js
-  const labels = progressData.map(point => point.Date); // "2023-01"
-  const data = progressData.map(point => point.Count);   // 5
+  const labels = progressData.map(point => point.Date);
+  const data = progressData.map(point => point.Count);
 
   new Chart(ctx, {
     type: 'line',
@@ -133,7 +128,7 @@ function renderProgressChart(progressData) {
         y: {
           beginAtZero: true,
           ticks: {
-            stepSize: 1 // Forzar que el eje Y solo muestre enteros
+            stepSize: 1
           }
         }
       },

@@ -5,9 +5,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>AppFitness - Mis rutinas</title>
-  <!-- Corregido 'xintegrity' -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
-    xintegrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
 </head>
 
 <body>
@@ -66,14 +65,12 @@
         <p class="text-muted">Aquí podrás ver, crear y administrar tus rutinas de entrenamiento.</p>
       </div>
       <div>
-        <!-- Meta 1: Botón "Crear" redirige a user-routine-new.html -->
         <a href="user-routines-new.html" class="btn btn-success">
           + Crear nueva rutina
         </a>
       </div>
     </div>
 
-    <!-- Añadido: Para mostrar errores de JS -->
     <p id="error_msg" class="text-danger"></p>
 
     <!-- Tabla dinámica para las rutinas -->
@@ -87,9 +84,7 @@
             <th scope="col">Acciones</th>
           </tr>
         </thead>
-        <!-- El <tbody> está vacío; el JS lo llenará -->
         <tbody id="routines-table-body">
-          <!-- El JS (user-routines.js) llenará esto -->
         </tbody>
       </table>
     </div>
@@ -98,7 +93,6 @@
 
   <script>
     function logout() {
-      // Corregido para usar sessionStorage
       sessionStorage.removeItem('access_token');
       sessionStorage.removeItem('refresh_token');
       sessionStorage.removeItem('user');
@@ -106,12 +100,10 @@
     }
   </script>
 
-  <!-- Corregido 'xintegrity' -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-    xintegrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+    integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
     crossorigin="anonymous"></script>
-    
-  <!-- Carga del script JS para esta página -->
+
   <script src="/statics/js/user-routines.js"></script>
 </body>
 

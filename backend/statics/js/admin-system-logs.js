@@ -1,4 +1,3 @@
-// --- Funciones de Ayuda ---
 
 /**
  * Obtiene el token de autenticación desde sessionStorage.
@@ -12,7 +11,7 @@ function getToken() {
  */
 async function fetchApi(url, options = {}) {
   const token = getToken();
-  
+
   const headers = {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`,
@@ -24,10 +23,10 @@ async function fetchApi(url, options = {}) {
   if (response.status === 401) {
     // Token inválido o expirado, redirigir al login
     alert('Tu sesión ha expirado. Por favor, inicia sesión de nuevo.');
-    window.location.href = '/login'; 
+    window.location.href = '/login';
     throw new Error('No autorizado');
   }
-  
+
   return response;
 }
 
@@ -38,25 +37,24 @@ async function fetchApi(url, options = {}) {
  */
 async function loadActiveUsers() {
   const tableBody = document.querySelector('.table tbody');
-  // Ajustamos el colspan a 4, según las nuevas columnas
-  tableBody.innerHTML = '<tr><td colspan="4">Cargando usuarios activos...</td></tr>'; 
+  tableBody.innerHTML = '<tr><td colspan="4">Cargando usuarios activos...</td></tr>';
 
   try {
-    // 1. Llamamos al mismo endpoint que usa admin-users
-    const response = await fetchApi('/api/admin/stats/users'); 
-    
+    // Llamamos al mismo endpoint que usa admin-users
+    const response = await fetchApi('/api/admin/stats/users');
+
     if (response.status === 204) {
       tableBody.innerHTML = '<tr><td colspan="4">No hay usuarios en el sistema.</td></tr>';
       return;
     }
-    
+
     if (!response.ok) {
       throw new Error(`Error ${response.status}: No se pudieron cargar los usuarios.`);
     }
 
-    const data = await response.json(); // La respuesta es { total: N, users: [...] }
-    
-    // 2. FILTRAMOS por IsActive = true
+    const data = await response.json();
+
+    // FILTRAMOS por IsActive = true
     const activeUsers = data.users.filter(user => user.is_active === true);
 
     tableBody.innerHTML = ''; // Limpiar "cargando"
@@ -64,9 +62,9 @@ async function loadActiveUsers() {
     if (activeUsers.length > 0) {
       activeUsers.forEach(user => {
         const row = document.createElement('tr');
-        
+
         // 3. APLICAMOS EL ESTILO VERDE (Clase de Bootstrap para "éxito")
-        row.className = 'table-success'; 
+        row.className = 'table-success';
 
         row.innerHTML = `
           <td>${user.UserName || 'N/D'}</td>
@@ -87,10 +85,6 @@ async function loadActiveUsers() {
 
 
 // --- Inicialización ---
-
-/**
- * Se ejecuta cuando el contenido del DOM está completamente cargado.
- */
 document.addEventListener('DOMContentLoaded', () => {
   loadActiveUsers();
 });

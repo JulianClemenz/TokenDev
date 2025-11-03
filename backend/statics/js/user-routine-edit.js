@@ -1,4 +1,3 @@
-// --- Funciones de Ayuda ---
 
 /**
  * Obtiene el token de autenticación desde sessionStorage.
@@ -12,7 +11,7 @@ function getToken() {
  */
 async function fetchApi(url, options = {}) {
   const token = getToken();
-  
+
   const headers = {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`,
@@ -23,10 +22,10 @@ async function fetchApi(url, options = {}) {
 
   if (response.status === 401) {
     alert('Tu sesión ha expirado. Por favor, inicia sesión de nuevo.');
-    window.location.href = '/login'; 
+    window.location.href = '/login';
     throw new Error('No autorizado');
   }
-  
+
   return response;
 }
 
@@ -38,14 +37,14 @@ async function fetchApi(url, options = {}) {
 async function loadRoutineData(id) {
   const routineNameInput = document.getElementById('routine_name');
   const errorElement = document.getElementById('error_msg');
-  
+
   try {
     const response = await fetchApi(`/api/routines/${id}`);
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.error || 'No se pudo cargar la rutina.');
     }
-    
+
     const routine = await response.json();
     routineNameInput.value = routine.Name; // Rellenar el input con el nombre actual
 
@@ -73,13 +72,12 @@ async function handleUpdateRoutine(id) {
     return;
   }
 
-  // El DTO (RoutineModifyDTO) espera {"name": "string"}
   const payload = {
     name: routineName
   };
 
   try {
-    // 2. Enviar al endpoint (PUT /api/routines/:id)
+    // Enviar al endpoint (PUT /api/routines/:id)
     const response = await fetchApi(`/api/routines/${id}`, {
       method: 'PUT',
       body: JSON.stringify(payload)
@@ -90,7 +88,7 @@ async function handleUpdateRoutine(id) {
       throw new Error(errorData.error || 'No se pudo actualizar la rutina.');
     }
 
-    // 3. Éxito
+    // Éxito
     alert('¡Rutina actualizada exitosamente!');
     window.location.href = 'user-routines.html';
 
@@ -102,7 +100,7 @@ async function handleUpdateRoutine(id) {
 
 // --- Inicialización ---
 document.addEventListener('DOMContentLoaded', () => {
-  // 1. Obtener el ID de la rutina de la URL
+  //Obtener el ID de la rutina de la URL
   const urlParams = new URLSearchParams(window.location.search);
   const routineId = urlParams.get('id');
   const errorElement = document.getElementById('error_msg');
@@ -112,10 +110,10 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
-  // 2. Cargar los datos de esa rutina
+  // Cargar los datos de esa rutina
   loadRoutineData(routineId);
 
-  // 3. Asignar el evento al botón de guardar
+  //Asignar el evento al botón de guardar
   const saveButton = document.getElementById('btn_save_routine');
   if (saveButton) {
     saveButton.addEventListener('click', () => handleUpdateRoutine(routineId));

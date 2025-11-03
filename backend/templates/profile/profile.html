@@ -10,10 +10,9 @@
 </head>
 
 <body>
-  <!-- NavBar -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
-      <a class="navbar-brand" href="../user/dashboard.html">Golds Gym</a>
+      <a class="navbar-brand" href="/dashboard-user">Golds Gym</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
         aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -22,62 +21,53 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
-            <a class="nav-link" href="../user/dashboard.html">Inicio</a>
+            <a class="nav-link" href="/dashboard-user">Inicio</a>
           </li>
           <li class="nav-item">
             <a class="nav-link active" aria-current="page" href="#"><strong>Mi cuenta</strong></a>
           </li>
         </ul>
-
-        <form class="d-flex" role="search">
-          <input class="form-control me-2" type="search" placeholder="Buscar..." aria-label="Search">
-          <button class="btn btn-outline-success" type="submit">Buscar</button>
-        </form>
       </div>
     </div>
   </nav>
-  <!-- /NavBar -->
-
   <div class="container mt-4">
     <h1 class="mb-4">Gestión de cuenta</h1>
 
-    <!-- Información personal -->
+    <p id="error_msg" class="text-danger"></p>
+
     <div class="card mb-3">
       <div class="card-header fw-bold bg-primary text-white">
         Información personal
       </div>
       <ul class="list-group list-group-flush">
-        <li class="list-group-item">Nombre de usuario: <strong>username</strong></li>
-        <li class="list-group-item">Nombre: <strong>firstname</strong></li>
-        <li class="list-group-item">Apellido: <strong>lastname</strong></li>
-        <li class="list-group-item">Correo electrónico: <strong>mail@example.com</strong></li>
-        <li class="list-group-item">Fecha de nacimiento: <strong>xx/xx/xxxx</strong></li>
+        <li class="list-group-item">Nombre de usuario: <strong id="profile_username">Cargando...</strong></li>
+        <li class="list-group-item">Nombre: <strong id="profile_name">Cargando...</strong></li>
+        <li class="list-group-item">Apellido: <strong id="profile_lastname">Cargando...</strong></li>
+        <li class="list-group-item">Correo electrónico: <strong id="profile_email">Cargando...</strong></li>
+        <li class="list-group-item">Fecha de nacimiento: <strong id="profile_birthdate">Cargando...</strong></li>
       </ul>
     </div>
 
-    <!-- Información física -->
     <div class="card mb-4">
       <div class="card-header fw-bold bg-secondary text-white">
         Información física
       </div>
       <ul class="list-group list-group-flush">
-        <li class="list-group-item">Altura: <strong>height cm</strong></li>
-        <li class="list-group-item">Peso: <strong>weight kg</strong></li>
-        <li class="list-group-item">Experiencia: <strong>experience</strong></li>
-        <li class="list-group-item">Objetivo: <strong>objective</strong></li>
+        <li class="list-group-item">Altura: <strong id="profile_height">Cargando...</strong></li>
+        <li class="list-group-item">Peso: <strong id="profile_weight">Cargando...</strong></li>
+        <li class="list-group-item">Experiencia: <strong id="profile_experience">Cargando...</strong></li>
+        <li class="list-group-item">Objetivo: <strong id="profile_objective">Cargando...</strong></li>
       </ul>
     </div>
 
-    <!-- Botones de acción -->
     <div class="d-flex flex-column flex-sm-row gap-3">
-      <button type="button" class="btn btn-outline-success w-100" onclick="window.location.href='profile-edit.html'">
+      <a href="profile-edit.html" class="btn btn-outline-success w-100">
         Editar perfil
-      </button>
+      </a>
 
-      <button type="button" class="btn btn-outline-warning w-100"
-        onclick="window.location.href='profile-edit-password.html'">
+      <a href="profile-edit-password.html" class="btn btn-outline-warning w-100">
         Cambiar contraseña
-      </button>
+      </a>
 
       <button type="button" class="btn btn-outline-danger w-100" onclick="logout()">
         Cerrar sesión
@@ -87,14 +77,20 @@
 
   <script>
     function logout() {
-      localStorage.removeItem('appfitness_token');
-      window.location.href = '../../index.html';
+      // CORREGIDO: Usar sessionStorage para coincidir con login.js
+      sessionStorage.removeItem('access_token');
+      sessionStorage.removeItem('refresh_token');
+      sessionStorage.removeItem('user');
+      // CORREGIDO: Redirigir a la raíz
+      window.location.href = '/';
     }
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
     crossorigin="anonymous"></script>
+
+  <script src="/statics/js/profile.js"></script>
 </body>
 
 </html>

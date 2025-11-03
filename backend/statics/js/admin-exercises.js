@@ -1,4 +1,3 @@
-// --- Funciones de Ayuda ---
 
 /**
  * Obtiene el token de autenticación desde sessionStorage.
@@ -12,7 +11,7 @@ function getToken() {
  */
 async function fetchApi(url, options = {}) {
   const token = getToken();
-  
+
   const headers = {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`,
@@ -24,19 +23,17 @@ async function fetchApi(url, options = {}) {
   if (response.status === 401) {
     // Token inválido o expirado, redirigir al login
     alert('Tu sesión ha expirado. Por favor, inicia sesión de nuevo.');
-    window.location.href = '/login'; 
+    window.location.href = '/login';
     throw new Error('No autorizado');
   }
-  
+
   return response;
 }
-
-// --- Lógica de renderizado ---
 
 /**
  * Renderiza la lista de ejercicios en el cuerpo de la tabla.
  * @param {Array} exercises - La lista de ejercicios a mostrar.
- * @param {HTMLElement} tableBody - El elemento <tbody> de la tabla.
+ * @param {HTMLElement} tableBody 
  */
 function renderExercises(exercises, tableBody) {
   tableBody.innerHTML = ''; // Limpiar "cargando" o resultados anteriores
@@ -45,8 +42,8 @@ function renderExercises(exercises, tableBody) {
     exercises.forEach(exercise => {
       // Asegúrate de que tu DTO 'ExcerciseResponseDTO' incluya 'id'.
       // (Lo añadimos en la respuesta anterior).
-      const exerciseId = exercise.id; 
-      
+      const exerciseId = exercise.id;
+
       const row = document.createElement('tr');
       row.innerHTML = `
         <td class="d-flex gap-2">
@@ -69,8 +66,6 @@ function renderExercises(exercises, tableBody) {
   }
 }
 
-// --- Lógica de la Página ---
-
 /**
  * Carga los ejercicios desde la API (con o sin filtros) y los muestra en la tabla.
  */
@@ -78,7 +73,7 @@ async function loadExercises() {
   const tableBody = document.querySelector('.table tbody');
   tableBody.innerHTML = '<tr><td colspan="7">Cargando ejercicios...</td></tr>';
 
-  // 1. Leer valores de los filtros
+  // Leer valores de los filtros
   const name = document.getElementById('filter_name').value.trim();
   const category = document.getElementById('filter_category').value;
   const muscleGroup = document.getElementById('filter_muscle_group').value.trim();
@@ -86,15 +81,14 @@ async function loadExercises() {
   let endpoint = '';
   const params = new URLSearchParams();
 
-  // 2. Construir la URL del endpoint
+  // Construir la URL del endpoint
   if (name) params.append('name', name);
   if (category) params.append('category', category);
   if (muscleGroup) params.append('muscle_group', muscleGroup);
 
   const queryString = params.toString();
 
-  // Tu backend (GetByFilters) espera al menos un filtro.
-  // Si no hay filtros, llamamos a GetExcercises (sin /filter)
+
   if (queryString) {
     // Usamos el endpoint de filtros
     endpoint = `/api/exercises/filter?${queryString}`;
@@ -105,7 +99,7 @@ async function loadExercises() {
 
   try {
     const response = await fetchApi(endpoint);
-    
+
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.error || `Error ${response.status}: No se pudieron cargar los ejercicios.`);
@@ -118,9 +112,9 @@ async function loadExercises() {
     console.error('Error al cargar ejercicios:', error);
     // Manejar el error de "debe ingresar al menos un filtro"
     if (error.message.includes("al menos un filtro")) {
-       tableBody.innerHTML = '<tr><td colspan="7">No hay ejercicios para mostrar. Limpie los filtros para ver todos.</td></tr>';
+      tableBody.innerHTML = '<tr><td colspan="7">No hay ejercicios para mostrar. Limpie los filtros para ver todos.</td></tr>';
     } else {
-       tableBody.innerHTML = `<tr><td colspan="7" class="text-danger">Error: ${error.message}</td></tr>`;
+      tableBody.innerHTML = `<tr><td colspan="7" class="text-danger">Error: ${error.message}</td></tr>`;
     }
   }
 }
@@ -145,27 +139,21 @@ async function handleDeleteExercise(exerciseId) {
 
     alert('Ejercicio eliminado correctamente.');
     loadExercises(); // Recargar la tabla para mostrar los cambios
-    
+
   } catch (error) {
     console.error('Error al eliminar ejercicio:', error);
     alert(`Error: ${error.message}`);
   }
 }
 
-
-// --- Inicialización ---
-
-/**
- * Se ejecuta cuando el contenido del DOM está completamente cargado.
- */
 document.addEventListener('DOMContentLoaded', () => {
-  // 1. Cargar la lista inicial (sin filtros)
+  // Carga la lista inicial (sin filtros)
   loadExercises();
 
-  // 2. Asignar evento al botón de Filtrar
+  // Asigna evento al botón de Filtrar
   document.getElementById('btn_filter').addEventListener('click', loadExercises);
-  
-  // 3. Asignar evento al botón de Limpiar
+
+  // Asigna evento al botón de Limpiar
   document.getElementById('btn_clear_filters').addEventListener('click', () => {
     document.getElementById('filter_name').value = '';
     document.getElementById('filter_category').value = '';
@@ -173,11 +161,10 @@ document.addEventListener('DOMContentLoaded', () => {
     loadExercises(); // Recargar la lista completa
   });
 
-  // 4. Usar delegación de eventos para manejar clics en botones "Eliminar"
   const tableBody = document.querySelector('.table tbody');
   tableBody.addEventListener('click', (event) => {
     const deleteButton = event.target.closest('.btn-delete-exercise');
-    
+
     if (deleteButton) {
       const exerciseId = deleteButton.dataset.id;
       handleDeleteExercise(exerciseId);

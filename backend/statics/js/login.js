@@ -22,8 +22,6 @@ async function login(email, password) {
         throw new Error(data.error || 'Error al iniciar sesión');
     }
 
-    // Inicio de sesión exitoso. El DTO de respuesta (LoginResponseDTO)
-    // ahora contiene tokens y el objeto 'user' (con el 'role' que agregamos)
     console.log('Login exitoso:', data);
 
     // Guardamos los tokens y los datos del usuario en sessionStorage
@@ -31,13 +29,13 @@ async function login(email, password) {
     sessionStorage.setItem('refresh_token', data.refresh_token);
     sessionStorage.setItem('user', JSON.stringify(data.user));
 
-    return data; // Devolvemos los datos (incluye el objeto 'user' con 'role')
+    return data;
 }
 
 /**
  * Registra un nuevo usuario.
  * Se conecta al endpoint POST /register
- * @param {object} payload (datos combinados de register1.html y register2.html)
+ * @param {object} payload 
  */
 async function register(payload) {
 

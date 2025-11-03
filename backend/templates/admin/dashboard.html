@@ -41,7 +41,6 @@
               Usuario
             </a>
             <ul class="dropdown-menu">
-              <!-- desde templates/admin/ al perfil: subir un nivel -->
               <li><a class="dropdown-item" href="../profile/profile.html">Ver perfil</a></li>
               <li>
                 <hr class="dropdown-divider">
@@ -66,9 +65,10 @@
 
   <script>
     function logout() {
-      localStorage.removeItem('appfitness_token');
-      // si preferís ir al login directamente, cambiá por 'login.html'
-      window.location.href = '../index.html';
+      sessionStorage.removeItem('access_token');
+      sessionStorage.removeItem('refresh_token');
+      sessionStorage.removeItem('user');
+      window.location.href = '/index.html';
     }
   </script>
 

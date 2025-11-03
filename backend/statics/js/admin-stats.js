@@ -1,4 +1,3 @@
-// --- Funciones de Ayuda ---
 
 /**
  * Obtiene el token de autenticación desde sessionStorage.
@@ -7,12 +6,9 @@ function getToken() {
   return sessionStorage.getItem('access_token');
 }
 
-/**
- * Realiza una solicitud fetch autenticada.
- */
 async function fetchApi(url, options = {}) {
   const token = getToken();
-  
+
   const headers = {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`,
@@ -23,10 +19,10 @@ async function fetchApi(url, options = {}) {
 
   if (response.status === 401) {
     alert('Tu sesión ha expirado. Por favor, inicia sesión de nuevo.');
-    window.location.href = '/login'; 
+    window.location.href = '/login';
     throw new Error('No autorizado');
   }
-  
+
   return response;
 }
 
@@ -34,35 +30,34 @@ async function fetchApi(url, options = {}) {
 
 /**
  * Carga el recuento total de usuarios y procesa el gráfico de edades.
- * Llama a: GET /api/admin/stats/users (AdminHandler.GetLogs)
+ * Llama a (AdminHandler.GetLogs)
  */
 async function loadUserCountAndAges() {
   const countElement = document.getElementById('user_count_number');
   if (!countElement) return;
-  countElement.textContent = '...'; // Indicador de carga
+  countElement.textContent = '...';
 
   try {
     const response = await fetchApi('/api/admin/stats/users');
-    
-    if (response.status === 204) { // 204 No Content
+
+    if (response.status === 204) {
       countElement.textContent = '0';
       return;
     }
-    
+
     if (!response.ok) {
       throw new Error('Error al cargar el conteo de usuarios');
     }
-    
-    const data = await response.json(); // { "total": count, "users": [...] }
-    
-    // 1. Poblar la Tarjeta 1 (Conteo de Usuarios)
+
+    const data = await response.json();
+
     countElement.textContent = data.total || 0;
-    
-    // 2. Poblar la Tarjeta 3 (Gráfico de Edades)
+
+    // Tarjeta 3 (Gráfico de Edades)
     if (data.users && data.users.length > 0) {
       processAgeChart(data.users); // Llamar a la función del gráfico
     }
-    
+
   } catch (error) {
     console.error('Error fetching user count:', error);
     countElement.textContent = 'Error';
@@ -71,7 +66,7 @@ async function loadUserCountAndAges() {
 
 /**
  * Carga el ranking de los 3 ejercicios más usados en la segunda tarjeta.
- * Llama a: GET /api/admin/stats/exercises (AdminHandler.GetGlobalStats)
+ * Llama a(AdminHandler.GetGlobalStats)
  */
 async function loadTopExercises() {
   const tableBody = document.getElementById('top_exercises_table_body');
@@ -80,7 +75,7 @@ async function loadTopExercises() {
 
   try {
     const response = await fetchApi('/api/admin/stats/exercises');
-    
+
     if (response.status === 204) { // 204 No Content
       tableBody.innerHTML = '<tr><td colspan="4">No hay datos de ejercicios.</td></tr>';
       return;
@@ -90,12 +85,12 @@ async function loadTopExercises() {
       throw new Error('Error al cargar el ranking de ejercicios');
     }
 
-    const exercises = await response.json(); 
-    tableBody.innerHTML = ''; 
+    const exercises = await response.json();
+    tableBody.innerHTML = '';
 
     if (exercises && exercises.length > 0) {
-      const top3 = exercises.slice(0, 3); 
-      
+      const top3 = exercises.slice(0, 3);
+
       top3.forEach((exercise, index) => {
         const row = document.createElement('tr');
         row.innerHTML = `
@@ -115,8 +110,6 @@ async function loadTopExercises() {
     tableBody.innerHTML = `<tr><td colspan="4" class="text-danger">Error: ${error.message}</td></tr>`;
   }
 }
-
-// --- NUEVAS FUNCIONES PARA EL GRÁFICO DE EDADES ---
 
 /**
  * Calcula la edad a partir de una fecha de nacimiento en string ISO ("YYYY-MM-DD...").
@@ -153,7 +146,7 @@ function processAgeChart(users) {
 
   users.forEach(user => {
     const age = calculateAge(user.BirthDate); // user.BirthDate viene de GetLogs
-    
+
     if (age === null || isNaN(age)) {
       ageGroups['N/D']++;
     } else if (age < 20) {
@@ -201,7 +194,7 @@ function renderAgeChart(labels, data) {
           beginAtZero: true,
           ticks: {
             // Forzar que el eje Y solo muestre números enteros
-            stepSize: 1 
+            stepSize: 1
           }
         }
       },
@@ -215,11 +208,7 @@ function renderAgeChart(labels, data) {
 }
 
 // --- Inicialización ---
-
-/**
- * Se ejecuta cuando el contenido del DOM está completamente cargado.
- */
 document.addEventListener('DOMContentLoaded', () => {
-  loadUserCountAndAges(); // Renombramos la función para que sea más clara
+  loadUserCountAndAges();
   loadTopExercises();
 });
