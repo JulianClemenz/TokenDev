@@ -110,6 +110,30 @@ func main() {
 		c.HTML(http.StatusOK, "profile-edit-password.html", nil)
 	})
 
+	// Rutas de páginas de Admin
+	router.GET("/admin-exercises", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "admin-exercises.html", nil)
+	})
+	router.GET("/admin-users", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "admin-users.html", nil)
+	})
+	router.GET("/admin-stats", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "admin-stats.html", nil)
+	})
+	router.GET("/admin-system-logs", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "admin-system-logs.html", nil)
+	})
+	// Rutas para crear/editar ejercicios de admin
+	router.GET("/admin-excercise-new", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "admin-excercise-new.html", nil)
+	})
+	router.GET("/admin-excercise-edit", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "admin-excercise-edit.html", nil)
+	})
+	router.GET("/admin-exercise-ranking", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "admin-exercise-ranking.html", nil)
+	})
+
 	// Rutas Públicas (Autenticación y Registro)
 	router.POST("/register", userHandler.PostUser)
 	router.POST("/login", authHandler.PostLogin)

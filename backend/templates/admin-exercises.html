@@ -13,7 +13,7 @@
   <!-- NavBar -->
   <nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container-fluid">
-      <a class="navbar-brand" href="admin-dashboard.html">Golds Gym</a>
+      <a class="navbar-brand" href="/admin-dashboard">Golds Gym</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
         aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -22,26 +22,26 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
-            <a class="nav-link" href="admin-dashboard.html">Inicio</a>
+            <a class="nav-link" href="/admin-dashboard">Inicio</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="admin-exercises.html"><strong>Ejercicios</strong></a>
+            <a class="nav-link active" aria-current="page" href="/admin-exercises"><strong>Ejercicios</strong></a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="admin-users.html">Usuarios</a>
+            <a class="nav-link" href="/admin-users">Usuarios</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="admin-stats.html">Estadísticas Globales</a>
+            <a class="nav-link" href="/admin-stats">Estadísticas Globales</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="admin-system-logs.html">Logs del Sistema</a>
+            <a class="nav-link" href="/admin-system-logs">Logs del Sistema</a>
           </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
               Usuario
             </a>
             <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="profile.html">Ver perfil</a></li>
+              <li><a class="dropdown-item" href="/profile">Ver perfil</a></li>
               <li>
                 <hr class="dropdown-divider">
               </li>
@@ -63,7 +63,7 @@
     <h1>Gestión de ejercicios</h1>
 
     <!-- Nuevo ejercicio -->
-    <a href="admin-excercise-new.html" class="btn btn-outline-success mt-2">Nuevo ejercicio</a>
+    <a href="/admin-excercise-new" class="btn btn-outline-success mt-2">Nuevo ejercicio</a>
 
     <!-- formulario de filtros -->
     <div class="row g-3 align-items-end mt-2 mb-3 p-3 bg-light border rounded">
@@ -118,7 +118,7 @@
       sessionStorage.removeItem('access_token');
       sessionStorage.removeItem('refresh_token');
       sessionStorage.removeItem('user');
-      window.location.href = 'index.html';
+      window.location.href = '/';
     }
   </script>
 

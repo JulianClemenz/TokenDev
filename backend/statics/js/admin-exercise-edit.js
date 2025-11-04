@@ -101,7 +101,7 @@ async function handleUpdateExercise(id) {
 
     //Éxito
     alert('¡Ejercicio actualizado exitosamente!');
-    window.location.href = 'admin-exercises.html'; // Redirigir de vuelta al listado
+    window.location.href = '/admin-exercises'; // Redirigir de vuelta al listado
 
   } catch (error) {
     console.error('Error al actualizar ejercicio:', error);

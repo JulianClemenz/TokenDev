@@ -70,7 +70,7 @@ async function handleSaveExercise() {
 
     // Éxito
     alert('¡Ejercicio creado exitosamente!');
-    window.location.href = 'admin-exercises.html'; // Redirigir de vuelta al listado
+    window.location.href = '/admin-exercises'; // Redirigir de vuelta al listado
 
   } catch (error) {
     console.error('Error al crear ejercicio:', error);
