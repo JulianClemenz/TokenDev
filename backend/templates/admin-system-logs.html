@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>AppFitness - Ranking de Ejercicios</title>
+  <title>AppFitness - Logs del Sistema</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
 </head>
@@ -31,19 +31,17 @@
             <a class="nav-link" href="admin-users.html">Usuarios</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="admin-stats.html"><strong>Estadísticas
-                globales</strong></a>
+            <a class="nav-link" href="admin-stats.html">Estadísticas Globales</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="admin-system-logs.html">Logs del Sistema</a>
+            <a class="nav-link active" aria-current="page" href="admin-system-logs.html"><strong>Logs del
+                Sistema</strong></a>
           </li>
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Usuario
-            </a>
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+              aria-expanded="false">Usuario</a>
             <ul class="dropdown-menu">
-              <!-- desde /templates/admin/ al perfil: subir un nivel -->
-              <li><a class="dropdown-item" href="../profile/profile.html">Ver perfil</a></li>
+              <li><a class="dropdown-item" href="profile.html">Ver perfil</a></li>
               <li>
                 <hr class="dropdown-divider">
               </li>
@@ -53,7 +51,7 @@
         </ul>
 
         <form class="d-flex" role="search">
-          <input class="form-control me-2" type="search" placeholder="Buscar" aria-label="Search" />
+          <input class="form-control me-2" type="search" placeholder="Buscar log..." aria-label="Search" />
           <button class="btn btn-outline-success" type="submit">Buscar</button>
         </form>
       </div>
@@ -61,27 +59,24 @@
   </nav>
   <!-- /NavBar -->
 
-  <div class="container my-4">
-    <h1>Ranking Completo de Ejercicios</h1>
-    <p class="text-muted">Lista de todos los ejercicios ordenados por su popularidad en las rutinas de los usuarios.</p>
+  <div class="container mt-4">
+    <h1>Logs del Sistema</h1>
+    <p class="text-muted">Mostrando todos los usuarios que se encuentran activos actualmente en el sistema.
+    </p>
 
-    <!-- Tabla del Ranking Completo -->
-    <div class="table-responsive mt-3">
-      <table class="table table-striped">
-        <thead class="table-light">
-          <tr>
-            <th scope="col">#</th>
-            <th scope="col">Nombre</th>
-            <th scope="col">ID</th>
-            <th scope="col">Cant</th>
-          </tr>
-        </thead>
-        <tbody id="ranking_table_body">
-        </tbody>
-      </table>
-    </div>
-    <!-- Fin de la tabla -->
-
+    <!-- Contenido de logs -->
+    <table class="table table-striped mt-3">
+      <thead class="table-light">
+        <tr>
+          <th scope="col">Usuario (Username)</th>
+          <th scope="col">Email</th>
+          <th scope="col">Rol</th>
+          <th scope="col">Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
   </div>
 
   <script>
@@ -89,7 +84,7 @@
       sessionStorage.removeItem('access_token');
       sessionStorage.removeItem('refresh_token');
       sessionStorage.removeItem('user');
-      window.location.href = '../index.html';
+      window.location.href = 'index.html';
     }
   </script>
 
@@ -97,7 +92,7 @@
     integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
     crossorigin="anonymous"></script>
 
-  <script src="/statics/js/admin-exercise-ranking.js"></script>
+  <script src="/statics/js/admin-system-logs.js"></script>
 </body>
 
 </html>

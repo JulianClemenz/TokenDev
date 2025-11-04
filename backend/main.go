@@ -55,10 +55,7 @@ func main() {
 
 	// Configurar archivos státic y templates
 	router.Static("/statics", "./statics")
-	router.LoadHTMLGlob("templates/*.html")
-	router.LoadHTMLGlob("templates/admin/*.html")
-	router.LoadHTMLGlob("templates/profile/*.html")
-	router.LoadHTMLGlob("templates/user/*.html")
+	router.LoadHTMLGlob("templates/*")
 
 	router.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.html", nil)
@@ -69,11 +66,14 @@ func main() {
 	router.GET("/register", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "register1.html", nil)
 	})
+	router.GET("/register2", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "register2.html", nil)
+	})
 	router.GET("/dashboard-user", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "user/dashboard.html", nil)
+		c.HTML(http.StatusOK, "user-dashboard.html", nil)
 	})
 	router.GET("/dashboard-admin", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "admin/dashboard.html", nil)
+		c.HTML(http.StatusOK, "admin-dashboard.html", nil)
 	})
 
 	// Rutas Públicas (Autenticación y Registro)

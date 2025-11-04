@@ -14,7 +14,7 @@
   <!-- NavBar -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
-      <a class="navbar-brand" href="index.html">Golds Gym</a>
+      <a class="navbar-brand" href="/">Golds Gym</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -76,9 +76,12 @@
         password: document.getElementById('reg_password').value,
         birthdate: document.getElementById('reg_birth').value
       };
-      // guardamos parcial y vamos al paso 2
+      if (!body.name || !body.surname || !body.username || !body.email || !body.password || !body.birthdate) {
+        document.getElementById('register_msg').textContent = 'Por favor, completa todos los campos.';
+        return;
+      }
       sessionStorage.setItem('reg_part1', JSON.stringify(body));
-      window.location.href = "register2.html";
+      window.location.href = "/register2";
     });
   </script>
 
