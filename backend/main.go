@@ -76,6 +76,40 @@ func main() {
 		c.HTML(http.StatusOK, "admin-dashboard.html", nil)
 	})
 
+	// Rutas de páginas de Usuario
+	router.GET("/user-exercise", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "user-exercise.html", nil)
+	})
+	router.GET("/user-routines", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "user-routines.html", nil)
+	})
+	router.GET("/user-progress", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "user-progress.html", nil)
+	})
+	router.GET("/user-record", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "user-record.html", nil)
+	})
+	router.GET("/user-routines-new", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "user-routines-new.html", nil)
+	})
+	router.GET("/user-routine-view.html", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "user-routine-view.html", nil)
+	})
+	router.GET("/user-routine-edit.html", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "user-routine-edit.html", nil)
+	})
+
+	// Rutas de Perfil
+	router.GET("/profile", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "profile.html", nil)
+	})
+	router.GET("/profile-edit.html", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "profile-edit.html", nil)
+	})
+	router.GET("/profile-edit-password.html", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "profile-edit-password.html", nil)
+	})
+
 	// Rutas Públicas (Autenticación y Registro)
 	router.POST("/register", userHandler.PostUser)
 	router.POST("/login", authHandler.PostLogin)

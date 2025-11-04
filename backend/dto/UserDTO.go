@@ -13,7 +13,7 @@ type UserRegisterDTO struct {
 	UserName   string    `json:"user_name" binding:"required,min=5"`
 	Email      string    `json:"email" binding:"required,email"`
 	Password   string    `json:"password" binding:"required,min=7"`
-	BirthDate  time.Time `json:"birth_date" binding:"required,time_format=2006-01-02"`
+	BirthDate  time.Time `json:"birth_date" binding:"required"`
 	Role       string    `json:"role"`
 	Weight     float32   `json:"weight"`
 	Height     float32   `json:"height"`
