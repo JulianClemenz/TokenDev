@@ -57,12 +57,12 @@ async function loadProfile() {
     const errorElement = document.getElementById('error_msg');
     const currentUser = getCurrentUser();
 
-    if (!currentUser || !currentUser.ID) {
+    if (!currentUser || !currentUser.id) {
         errorElement.textContent = 'No se pudo identificar al usuario. Inicia sesión de nuevo.';
         return;
     }
 
-    const userId = currentUser.ID;
+    const userId = currentUser.id;
 
     try {
         //Llamar a la API (GET /api/users/:id)

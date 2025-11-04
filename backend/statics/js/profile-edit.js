@@ -123,12 +123,12 @@ async function handleSaveChanges(userId, userRole) {
 
 document.addEventListener('DOMContentLoaded', () => {
     const currentUser = getCurrentUser();
-    if (!currentUser || !currentUser.ID) {
+    if (!currentUser || !currentUser.id) {
         document.getElementById('error_msg').textContent = 'Error de autenticación.';
         return;
     }
 
-    const userId = currentUser.ID;
+    const userId = currentUser.id;
     const userRole = currentUser.role; // Obtenemos el rol de la sesión
 
     // 1. Cargar los datos en el formulario

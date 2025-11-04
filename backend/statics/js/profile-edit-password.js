@@ -99,12 +99,12 @@ async function handleChangePassword(userId) {
 
 document.addEventListener('DOMContentLoaded', () => {
     const currentUser = getCurrentUser();
-    if (!currentUser || !currentUser.ID) {
+    if (!currentUser || !currentUser.id) {
         document.getElementById('error_msg').textContent = 'Error de autenticación.';
         return;
     }
 
-    const userId = currentUser.ID;
+    const userId = currentUser.id;
 
     // Asignar evento al botón de guardar
     const saveButton = document.getElementById('btn_save_password');

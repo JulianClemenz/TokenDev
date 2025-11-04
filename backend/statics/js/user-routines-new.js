@@ -63,7 +63,7 @@ async function handleSaveRoutine() {
     alert('¡Rutina creada exitosamente!');
 
     //redirigimos de vuelta al listado.
-    window.location.href = 'user-routines.html';
+    window.location.href = '/user-routines';
 
   } catch (error) {
     console.error('Error al crear rutina:', error);

@@ -65,7 +65,7 @@ async function loadRoutines() {
   const errorElement = document.getElementById('error_msg');
   const currentUser = getCurrentUser();
 
-  if (!currentUser || !currentUser.ID) {
+  if (!currentUser || !currentUser.id) {
     if (errorElement) errorElement.textContent = 'No se pudo identificar al usuario. Por favor, inicia sesión de nuevo.';
     console.warn("No se pudo obtener el ID del usuario desde sessionStorage.");
   }
@@ -92,7 +92,7 @@ async function loadRoutines() {
     }
 
     // Filtramos para mostrar SÓLO las rutinas creadas por el usuario actual
-    const userRoutines = routines.filter(r => r.CreatorUserID === currentUser.ID);
+    const userRoutines = routines.filter(r => r.CreatorUserID === currentUser.id);
 
     tableBody.innerHTML = '';
 

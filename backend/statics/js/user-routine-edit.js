@@ -90,7 +90,7 @@ async function handleUpdateRoutine(id) {
 
     // Éxito
     alert('¡Rutina actualizada exitosamente!');
-    window.location.href = 'user-routines.html';
+    window.location.href = '/user-routines';
 
   } catch (error) {
     console.error('Error al actualizar rutina:', error);
