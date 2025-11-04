@@ -71,6 +71,8 @@ type RoutineResponseDTO struct {
 
 func NewRoutineResponseDTO(routine models.Routine) *RoutineResponseDTO {
 	return &RoutineResponseDTO{
+		ID: utils.GetStringIDFromObjectID(routine.ID),
+
 		Name:            routine.Name,
 		CreatorUserID:   utils.GetStringIDFromObjectID(routine.CreatorUserID), //check
 		ExcerciseList:   newExcerciseInRoutineResponseDTO(routine.ExcerciseList),
