@@ -1,6 +1,5 @@
-// --- Variables Globales ---
-let userRoutines = []; // Almacenará las rutinas del usuario
-let addExerciseModalInstance; // Almacenará la instancia del modal de Bootstrap
+let userRoutines = [];
+let addExerciseModalInstance;
 
 /**
  * Obtiene el token de autenticación desde sessionStorage.
@@ -22,7 +21,7 @@ function getCurrentUser() {
 }
 
 /**
- * Función de logout (necesaria para getCurrentUser)
+ * logout 
  */
 function logout() {
   sessionStorage.removeItem('access_token');
@@ -31,9 +30,6 @@ function logout() {
   window.location.href = '/index.html';
 }
 
-/**
- * Realiza una solicitud fetch autenticada.
- */
 async function fetchApi(url, options = {}) {
   const token = getToken();
 
@@ -60,7 +56,7 @@ async function fetchApi(url, options = {}) {
 /**
  * Renderiza la lista de ejercicios en el cuerpo de la tabla (Versión de Usuario)
  * @param {Array} exercises - La lista de ejercicios a mostrar.
- * @param {HTMLElement} tableBody - El elemento <tbody> de la tabla.
+ * @param {HTMLElement} tableBody 
  */
 function renderUserExercises(exercises, tableBody) {
   tableBody.innerHTML = '';
@@ -107,7 +103,7 @@ async function loadUserRoutines() {
   try {
     const response = await fetchApi('/api/routines');
     if (!response.ok) {
-      if (response.status === 404) { // 404 es esperado si no tiene rutinas
+      if (response.status === 404) {
         selectElement.innerHTML = '<option value="">No tienes rutinas creadas</option>';
         return;
       }
@@ -120,7 +116,7 @@ async function loadUserRoutines() {
     userRoutines = allRoutines.filter(r => r.CreatorUserID === currentUser.id);
 
     if (userRoutines.length > 0) {
-      selectElement.innerHTML = ''; // Limpiar "cargando"
+      selectElement.innerHTML = '';
       userRoutines.forEach(routine => {
         const option = document.createElement('option');
         option.value = routine.ID;
@@ -138,13 +134,12 @@ async function loadUserRoutines() {
 }
 
 /**
- * Carga los ejercicios desde la API (con o sin filtros) y los muestra en la tabla.
+ * Carga los ejercicios desde la API y los muestra en la tabla.
  */
 async function loadExercises() {
   const tableBody = document.querySelector('.table tbody');
   tableBody.innerHTML = '<tr><td colspan="7">Cargando ejercicios...</td></tr>';
 
-  // Leer valores de los filtros
   const name = document.getElementById('filter_name').value.trim();
   const category = document.getElementById('filter_category').value;
   const muscleGroup = document.getElementById('filter_muscle_group').value.trim();
@@ -152,7 +147,6 @@ async function loadExercises() {
   let endpoint = '';
   const params = new URLSearchParams();
 
-  // Construir la URL del endpoint
   if (name) params.append('name', name);
   if (category) params.append('category', category);
   if (muscleGroup) params.append('muscle_group', muscleGroup);
@@ -174,7 +168,7 @@ async function loadExercises() {
     }
 
     const exercises = await response.json();
-    renderUserExercises(exercises, tableBody); // Usar la función de renderizado DE USUARIO
+    renderUserExercises(exercises, tableBody);
 
   } catch (error) {
     console.error('Error al cargar ejercicios:', error);
@@ -193,14 +187,12 @@ async function handleSaveToRoutine() {
   const errorElement = document.getElementById('modal_error_msg');
   errorElement.textContent = '';
 
-  // 1. Obtener datos del modal
   const exerciseId = document.getElementById('modal_exercise_id').value;
   const routineId = document.getElementById('modal_routine_select').value;
   const series = parseInt(document.getElementById('modal_series').value, 10);
   const reps = parseInt(document.getElementById('modal_reps').value, 10);
   const weight = parseFloat(document.getElementById('modal_weight').value) || 0;
 
-  // 2. Validar
   if (!routineId) {
     errorElement.textContent = 'Debes seleccionar una rutina (o crear una si no tienes).';
     return;
@@ -218,7 +210,6 @@ async function handleSaveToRoutine() {
     return;
   }
 
-  // 3. Preparar payload (debe coincidir con ExcerciseInRoutineDTO de Go)
   const payload = {
     exercise_id: exerciseId,
     repetitions: reps,
@@ -227,7 +218,6 @@ async function handleSaveToRoutine() {
   };
 
   try {
-    // 4. Llamar a la API (POST /api/routines/:id/exercises)
     const response = await fetchApi(`/api/routines/${routineId}/exercises`, {
       method: 'POST',
       body: JSON.stringify(payload)
@@ -238,9 +228,8 @@ async function handleSaveToRoutine() {
       throw new Error(errorData.error || 'No se pudo añadir el ejercicio.');
     }
 
-    // 5. Éxito
     alert('¡Ejercicio añadido a la rutina exitosamente!');
-    addExerciseModalInstance.hide(); // Ocultar el modal
+    addExerciseModalInstance.hide();
 
     // Limpiar campos del modal para la próxima vez
     document.getElementById('modal_series').value = '3';
@@ -262,34 +251,27 @@ async function handleSaveToRoutine() {
  * Se ejecuta cuando el contenido del DOM está completamente cargado.
  */
 document.addEventListener('DOMContentLoaded', () => {
-  // Obtener la instancia del modal de Bootstrap
   const modalElement = document.getElementById('addExerciseModal');
   if (modalElement) {
     addExerciseModalInstance = new bootstrap.Modal(modalElement);
 
-    // Evento que se dispara ANTES de que el modal se muestre
     modalElement.addEventListener('show.bs.modal', (event) => {
-      // 'event.relatedTarget' es el botón que abrió el modal
       const button = event.relatedTarget;
 
       const exerciseId = button.dataset.exerciseId;
       const exerciseName = button.dataset.exerciseName;
 
-      //Poner los datos en el modal
       document.getElementById('modal_exercise_id').value = exerciseId;
       document.getElementById('modal_exercise_name').textContent = exerciseName;
 
-      // Limpiar errores previos
       document.getElementById('modal_error_msg').textContent = '';
     });
   }
 
-  // Cargar la lista inicial (sin filtros)
   loadExercises();
-  // Cargar las rutinas del usuario para el dropdown
+  // Cargar las rutinas del usuario
   loadUserRoutines();
 
-  // --- Asignar eventos a botones ---
   document.getElementById('btn_filter').addEventListener('click', loadExercises);
 
   document.getElementById('btn_clear_filters').addEventListener('click', () => {
@@ -299,7 +281,6 @@ document.addEventListener('DOMContentLoaded', () => {
     loadExercises(); // Recargar la lista completa
   });
 
-  // Asignar evento al botón de GUARDAR del modal
   document.getElementById('btn_save_to_routine').addEventListener('click', handleSaveToRoutine);
 
 });
