@@ -54,8 +54,11 @@ func main() {
 	router := gin.Default()
 
 	// Configurar archivos státic y templates
-	router.Static("/static", "./static")
-	router.LoadHTMLGlob("templates/**/*")
+	router.Static("/statics", "./statics")
+	router.LoadHTMLGlob("templates/*.html")
+	router.LoadHTMLGlob("templates/admin/*.html")
+	router.LoadHTMLGlob("templates/profile/*.html")
+	router.LoadHTMLGlob("templates/user/*.html")
 
 	router.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.html", nil)
