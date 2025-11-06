@@ -145,7 +145,7 @@ func (service *RoutineService) PutRoutine(modify dto.RoutineModifyDTO) (*dto.Rou
 }
 
 func (service *RoutineService) AddExcerciseToRoutine(routineID string, exercise *dto.ExcerciseInRoutineDTO, idEditor string) (*dto.RoutineResponseDTO, error) {
-	//busqueda de rutina
+
 	routineDB, err := service.RoutineRepository.GetRoutineByID(routineID)
 	if err != nil {
 		return nil, err
@@ -158,7 +158,7 @@ func (service *RoutineService) AddExcerciseToRoutine(routineID string, exercise 
 	if idCreator != idEditor {
 		return nil, fmt.Errorf("Al no ser el creador de esta rutina no se brinda permisos para dicha accion")
 	}
-	//busqueda de ej
+
 	exerciseDB, err := service.ExcerciseRepository.GetExcerciseByID(exercise.ExcerciseID)
 	if err != nil {
 		return nil, err
@@ -167,14 +167,12 @@ func (service *RoutineService) AddExcerciseToRoutine(routineID string, exercise 
 		return nil, fmt.Errorf("no existe ningún ejercicio con ese ID")
 	}
 
-	//convertimos dto a model
 	exerciseModel, err := dto.GetModelExerciseInRoutineDTO(exercise)
 	if err != nil {
 		return nil, err
 	}
 	exerciseModel.CreationDate = time.Now()
 
-	//agregar ejercicio a la rutina
 	result, err := service.RoutineRepository.AddExerciseRutine(exerciseModel, routineDB.ID)
 	if err != nil {
 		return nil, fmt.Errorf("error al agregar el ejercicio a la rutina: %w", err)
@@ -183,14 +181,6 @@ func (service *RoutineService) AddExcerciseToRoutine(routineID string, exercise 
 		return nil, fmt.Errorf("no se agregó ningún ejercicio a la rutina")
 	}
 
-	//modificar la fecha de edición de la rutina
-	routineDB.EditionDate = time.Now()
-	_, err = service.RoutineRepository.PutRoutine(*routineDB)
-	if err != nil {
-		return nil, fmt.Errorf("error al actualizar la fecha de edición de la rutina en RoutineService.AddExcerciseToRoutine(): %v", err)
-	}
-
-	//buscamos rutina para devolver
 	updatedRoutineDB, err := service.RoutineRepository.GetRoutineByID(routineID)
 	if err != nil {
 		return nil, fmt.Errorf("error al obtener la rutina modificada en RoutineService.AddExcerciseToRoutine(): %v", err)

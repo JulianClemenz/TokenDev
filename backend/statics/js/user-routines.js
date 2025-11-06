@@ -107,11 +107,19 @@ async function loadRoutines() {
           year: 'numeric'
         });
 
+        // --- MODIFICACIÓN 1: Botón "Terminar" añadido ---
         row.innerHTML = `
           <td><strong>${routine.Name}</strong></td>
           <td>${routine.ExcerciseList ? routine.ExcerciseList.length : 0}</td>
           <td>${formattedDate}</td>
-          <td class="d-flex gap-2">
+          <td class="d-flex gap-2 flex-wrap">
+            <button 
+              type="button" 
+              class="btn btn-success btn-sm btn-finish-routine" 
+              data-id="${routine.ID}"
+              data-name="${routine.Name}">
+              Terminar
+            </button>
             <a href="user-routine-view.html?id=${routine.ID}" class="btn btn-outline-info btn-sm">Ver</a>
             <a href="user-routine-edit.html?id=${routine.ID}" class="btn btn-outline-primary btn-sm">Editar</a> 
             <button type="button" class="btn btn-outline-danger btn-sm btn-delete-routine" data-id="${routine.ID}">
@@ -162,6 +170,43 @@ async function handleDeleteRoutine(routineId) {
   }
 }
 
+// --- MODIFICACIÓN 2: Nueva función para manejar el clic en "Terminar" ---
+/**
+ * Maneja el clic en el botón de terminar rutina (crea un workout).
+ */
+async function handleFinishRoutine(routineId, routineName) {
+  // 1. Confirmar con el usuario
+  if (!confirm(`¿Estás seguro de que deseas registrar que has terminado la rutina "${routineName}"?\n\nEsto creará un nuevo registro en tu historial.`)) {
+    return;
+  }
+
+  const errorElement = document.getElementById('error_msg');
+  if (errorElement) errorElement.textContent = ''; // Limpiar errores previos
+
+  try {
+    // 2. Llamar al endpoint de la API para crear el workout
+    // El endpoint es POST /api/workouts/:id_routine
+    const response = await fetchApi(`/api/workouts/${routineId}`, {
+      method: 'POST'
+      // No se necesita 'body' según tu WorkoutHandler
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Error al registrar el entrenamiento.');
+    }
+
+    // 3. Informar éxito
+    alert('¡Entrenamiento registrado exitosamente en tu historial!');
+    // Opcional: redirigir al historial
+    // window.location.href = '/user-record'; 
+
+  } catch (error) {
+    console.error('Error al terminar rutina:', error);
+    if (errorElement) errorElement.textContent = `Error: ${error.message}`;
+  }
+}
+
 
 // --- Inicialización ---
 document.addEventListener('DOMContentLoaded', () => {
@@ -176,6 +221,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (deleteButton) {
       const routineId = deleteButton.dataset.id;
       handleDeleteRoutine(routineId);
+    }
+
+    // --- MODIFICACIÓN 3: Detectar clic en el botón "Terminar" ---
+    const finishButton = event.target.closest('.btn-finish-routine');
+    if (finishButton) {
+      const routineId = finishButton.dataset.id;
+      const routineName = finishButton.dataset.name;
+      handleFinishRoutine(routineId, routineName);
     }
   });
 });

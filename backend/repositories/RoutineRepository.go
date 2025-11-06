@@ -5,6 +5,7 @@ import (
 	"AppFitness/utils"
 	"context"
 	"fmt"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -114,6 +115,9 @@ func (repository RoutineRepository) AddExerciseRutine(exercise models.ExcerciseI
 	update := bson.M{
 		"$push": bson.M{
 			"exercise_list": exercise,
+		},
+		"$set": bson.M{
+			"edition_date": time.Now(),
 		},
 	}
 

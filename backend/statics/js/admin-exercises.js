@@ -47,7 +47,7 @@ function renderExercises(exercises, tableBody) {
       const row = document.createElement('tr');
       row.innerHTML = `
         <td class="d-flex gap-2">
-          <a href="admin-excercise-edit.html?id=${exerciseId}" class="btn btn-outline-primary btn-sm">Editar</a>
+          <a href="/admin-excercise-edit?id=${exerciseId}" class="btn btn-outline-primary btn-sm">Editar</a>
           <button type="button" class="btn btn-outline-danger btn-sm btn-delete-exercise" data-id="${exerciseId}">
             Eliminar
           </button>
