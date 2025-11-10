@@ -2,7 +2,6 @@ package services
 
 import (
 	"AppFitness/dto"
-	"AppFitness/models"
 	"AppFitness/repositories"
 	"AppFitness/utils"
 	"fmt"
@@ -153,7 +152,7 @@ func (ws WorkoutService) DeleteWorkout(delete dto.WorkoutDeleteDTO) error {
 
 func (ws WorkoutService) GetWorkoutStats(userID string) (*dto.WorkoutStatsDTO, error) {
 
-	//validacion de existencia de user
+	// validacion de existencia de user
 	userModel, err := ws.UserRepository.GetUsersByID(userID)
 	if err != nil {
 		return nil, fmt.Errorf("Error al recuperar usuario")
@@ -162,74 +161,83 @@ func (ws WorkoutService) GetWorkoutStats(userID string) (*dto.WorkoutStatsDTO, e
 		return nil, fmt.Errorf("No se encontro user")
 	}
 
-	//logica
-	workoutsUser, err := ws.WorkoutRepository.GetWorkoutsByUserID(userID) //lista de workouts del user
+	// logica
+	workoutsUser, err := ws.WorkoutRepository.GetWorkoutsByUserID(userID) // lista de workouts del user
 	if err != nil {
 		return nil, fmt.Errorf("Error al obtener workouts")
 	}
-	if len(workoutsUser) == 0 || len(workoutsUser) == 1 {
-		return &dto.WorkoutStatsDTO{}, nil
-	}
-	// TotalWorkous
-	status := &dto.WorkoutStatsDTO{}
-	status.TotalWorkouts = len(workoutsUser)
 
-	//WeeklyFrequency (logica: (cantidad de dias entre el primer y el ult workots - 1) / cantidad de entrenamientos)
-	sort.Slice(workoutsUser, func(i, j int) bool { //esta estructura ordena ascendentemente los workouts por fecha de creacion
+	// Inicializamos el DTO con valores por defecto para evitar nulos en el JSON
+	status := &dto.WorkoutStatsDTO{
+		TotalWorkouts:    len(workoutsUser),
+		MostUsedRoutines: []dto.RoutineUsageDTO{},
+		ProgressOverTime: []dto.ProgressPointDTO{},
+		WeeklyFrequency:  0.0,
+	}
+
+	// Si hay 0 o 1 workout, devolvemos lo básico porque no se puede calcular frecuencia entre fechas
+	if len(workoutsUser) <= 1 {
+		return status, nil
+	}
+
+	// (logica: (cantidad de dias entre el primer y el ult workots - 1) / cantidad de entrenamientos)
+	sort.Slice(workoutsUser, func(i, j int) bool { // ordena ascendentemente por fecha
 		return workoutsUser[i].Date.Before(workoutsUser[j].Date)
 	})
-	var primerWorkout models.Workout
-	var ultWorkout models.Workout
-	for i, workout := range workoutsUser {
-		if i == 0 {
-			primerWorkout = workout //obtenemos primer workout
-		}
-		ultWorkout = workout //obtenemos ultimo workout
-	}
-	dayDifference := ultWorkout.Date.Sub(primerWorkout.Date).Hours() / 24 //calculamos dias de diferencia
-	frequency := (dayDifference - 1) / float64(status.TotalWorkouts)      //calculamos la frecuencia
-	status.WeeklyFrequency = frequency
 
-	//MostUsedRoutines (ranking de rutinas mas usadas)
-	counts := make(map[string]int, len(workoutsUser)) //agrupa
-	for _, w := range workoutsUser {
-		counts[w.RoutineName]++ //suma en el map
+	primerWorkout := workoutsUser[0]
+	ultWorkout := workoutsUser[len(workoutsUser)-1]
+
+	dayDifference := ultWorkout.Date.Sub(primerWorkout.Date).Hours() / 24
+
+	if dayDifference < 1 {
+		// Si todos los entrenamientos fueron el mismo día (diferencia < 1 día)
+		status.WeeklyFrequency = float64(status.TotalWorkouts)
+	} else {
+		// Fórmula ajustada: Workouts totales dividido por la cantidad de semanas que han pasado
+		status.WeeklyFrequency = float64(status.TotalWorkouts) / (dayDifference / 7.0)
 	}
-	//mapear a dto
-	out := make([]dto.RoutineUsageDTO, 0, len(counts)) //out es la lista de RoutineUsageDTO
+
+	// --- MostUsedRoutines (ranking de rutinas mas usadas) ---
+	counts := make(map[string]int)
+	for _, w := range workoutsUser {
+		counts[w.RoutineName]++
+	}
+
 	for name, c := range counts {
-		out = append(out, dto.RoutineUsageDTO{
+		status.MostUsedRoutines = append(status.MostUsedRoutines, dto.RoutineUsageDTO{
 			RoutineName: name,
 			Count:       c,
 		})
 	}
-	//ordenamos primero por mas usados, segundo alfabeticamente
-	sort.Slice(out, func(i, j int) bool {
-		if out[i].Count == out[j].Count {
-			return out[i].RoutineName < out[j].RoutineName
+	// ordenamos primero por mas usados, segundo alfabeticamente
+	sort.Slice(status.MostUsedRoutines, func(i, j int) bool {
+		if status.MostUsedRoutines[i].Count == status.MostUsedRoutines[j].Count {
+			return status.MostUsedRoutines[i].RoutineName < status.MostUsedRoutines[j].RoutineName
 		}
-		return out[i].Count > out[j].Count
+		return status.MostUsedRoutines[i].Count > status.MostUsedRoutines[j].Count
 	})
-	status.MostUsedRoutines = out
 
-	//ProgressOverTime (grafica, datos = (mes, cant entrenamientos))
-	// 2) Agrupar por periodo (mes)
+	// ---grafica ---
 	buckets := make(map[string]int)
 	for _, w := range workoutsUser {
-		key := w.Date.Format("2006-01") // yyyy-mm (formatp)
+		key := w.Date.Format("2006-01") // yyyy-mm
 		buckets[key]++
 	}
-	// 3) Pasar a slice ordenado cronológicamente
+
+	// Pasar a slice ordenado cronológicamente
 	keys := make([]string, 0, len(buckets))
 	for k := range buckets {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)
-	out1 := make([]dto.ProgressPointDTO, 0, len(keys))
+
 	for _, k := range keys {
-		out1 = append(out1, dto.ProgressPointDTO{Date: k, Count: buckets[k]})
+		status.ProgressOverTime = append(status.ProgressOverTime, dto.ProgressPointDTO{
+			Date:  k,
+			Count: buckets[k],
+		})
 	}
-	status.ProgressOverTime = out1
 
 	return status, nil
 }

@@ -16,8 +16,8 @@ type WorkoutResponseDTO struct {
 	ID          string    `json:"id"`
 	UserID      string    `json:"user_id"`
 	RoutineID   string    `json:"routine_id"`
-	RoutineName string    `json: routine_name`
-	DoneAt      time.Time `json:"done_at"`
+	RoutineName string    `json:"RoutineName"`
+	DoneAt      time.Time `json:"DoneAt"`
 }
 
 func GetModelWorkoutRegisterDTO(dto *WorkoutRegisterDTO) (models.Workout, error) {
